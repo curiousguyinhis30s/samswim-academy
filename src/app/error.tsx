@@ -22,9 +22,14 @@ export default function Error({
           </svg>
         </div>
         <h2 className="text-xl font-bold text-slate-900 mb-2">Something went wrong!</h2>
-        <p className="text-slate-600 mb-6">
+        <p className="text-slate-600 mb-4">
           We encountered an unexpected error. Please try refreshing the page.
         </p>
+        {error.message && (
+          <p className="text-xs text-red-500 bg-red-50 p-2 rounded mb-4 break-all">
+            {error.message}
+          </p>
+        )}
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => window.location.reload()}

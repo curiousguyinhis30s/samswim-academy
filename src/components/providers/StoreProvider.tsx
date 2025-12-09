@@ -8,19 +8,36 @@ interface StoreProviderProps {
 
 export function StoreProvider({ children }: StoreProviderProps) {
   const [isHydrated, setIsHydrated] = useState(false)
+  const [hydrationError, setHydrationError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Guard: Only run on client
+    if (typeof window === 'undefined') {
+      setIsHydrated(true)
+      return
+    }
+
     // Dynamically import stores only on client side
     // This prevents any server-side access to localStorage or IndexedDB
     const hydrateStores = async () => {
       try {
-        const { useAuthStore } = await import('@/lib/store/auth')
-        const { useAppStore } = await import('@/lib/store/app')
+        console.log('[StoreProvider] Starting store hydration...')
 
-        useAuthStore.persist.rehydrate()
-        useAppStore.persist.rehydrate()
+        const authModule = await import('@/lib/store/auth')
+        console.log('[StoreProvider] Auth store imported')
+
+        const appModule = await import('@/lib/store/app')
+        console.log('[StoreProvider] App store imported')
+
+        authModule.useAuthStore.persist.rehydrate()
+        console.log('[StoreProvider] Auth store rehydrated')
+
+        appModule.useAppStore.persist.rehydrate()
+        console.log('[StoreProvider] App store rehydrated')
+
       } catch (error) {
-        console.error('Store hydration error:', error)
+        console.error('[StoreProvider] Store hydration error:', error)
+        setHydrationError(error instanceof Error ? error.message : 'Unknown error')
       } finally {
         setIsHydrated(true)
       }
