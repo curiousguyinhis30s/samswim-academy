@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect, useState, ReactNode } from 'react'
-import { useAuthStore } from '@/lib/store/auth'
-import { useAppStore } from '@/lib/store/app'
 
 interface StoreProviderProps {
   children: ReactNode
@@ -12,19 +10,23 @@ export function StoreProvider({ children }: StoreProviderProps) {
   const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
-    // Guard: Only run on client
-    if (typeof window === 'undefined') return
+    // Dynamically import stores only on client side
+    // This prevents any server-side access to localStorage or IndexedDB
+    const hydrateStores = async () => {
+      try {
+        const { useAuthStore } = await import('@/lib/store/auth')
+        const { useAppStore } = await import('@/lib/store/app')
 
-    try {
-      // Rehydrate the stores on the client
-      useAuthStore.persist.rehydrate()
-      useAppStore.persist.rehydrate()
-    } catch (error) {
-      console.error('Store rehydration error:', error)
-    } finally {
-      // Always mark as hydrated to prevent infinite loading
-      setIsHydrated(true)
+        useAuthStore.persist.rehydrate()
+        useAppStore.persist.rehydrate()
+      } catch (error) {
+        console.error('Store hydration error:', error)
+      } finally {
+        setIsHydrated(true)
+      }
     }
+
+    hydrateStores()
   }, [])
 
   if (!isHydrated) {
