@@ -77,13 +77,27 @@ export const useAppStore = create<AppState>()(
       lessonNotes: [],
 
       initialize: async () => {
-        const tenant = await db.tenants.toCollection().first()
-        if (!tenant) return
+        // Guard: Only run on client side
+        if (typeof window === 'undefined') {
+          console.log('initialize skipped - running on server')
+          return
+        }
 
-        const currentUser = await db.users.where('tenantId').equals(tenant.id!).and(u => u.role === 'owner').first()
+        try {
+          const tenant = await db.tenants.toCollection().first()
+          if (!tenant) {
+            set({ isInitialized: true })
+            return
+          }
 
-        set({ tenant, currentUser, isInitialized: true })
-        await get().refreshData()
+          const currentUser = await db.users.where('tenantId').equals(tenant.id!).and(u => u.role === 'owner').first()
+
+          set({ tenant, currentUser, isInitialized: true })
+          await get().refreshData()
+        } catch (error) {
+          console.error('Error initializing app:', error)
+          set({ isInitialized: true })
+        }
       },
 
       refreshData: async () => {
