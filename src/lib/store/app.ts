@@ -1,17 +1,16 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { db, Tenant, User, Booking, BookingParticipant, ServiceType, Resource, SkillCategory, Skill, SkillAssessment, LessonNote } from '@/lib/db'
 
-// Custom storage that handles SSR
-const customStorage = {
-  getItem: (name: string) => {
+// SSR-safe localStorage wrapper
+const safeLocalStorage = {
+  getItem: (name: string): string | null => {
     if (typeof window === 'undefined') return null
-    const item = localStorage.getItem(name)
-    return item ? JSON.parse(item) : null
+    return localStorage.getItem(name)
   },
-  setItem: (name: string, value: unknown) => {
+  setItem: (name: string, value: string) => {
     if (typeof window === 'undefined') return
-    localStorage.setItem(name, JSON.stringify(value))
+    localStorage.setItem(name, value)
   },
   removeItem: (name: string) => {
     if (typeof window === 'undefined') return
@@ -260,7 +259,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'samswim-app',
-      storage: customStorage,
+      storage: createJSONStorage(() => safeLocalStorage),
       partialize: (state) => ({
         isInitialized: state.isInitialized,
       }),

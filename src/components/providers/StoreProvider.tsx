@@ -12,10 +12,19 @@ export function StoreProvider({ children }: StoreProviderProps) {
   const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
-    // Rehydrate the stores on the client
-    useAuthStore.persist.rehydrate()
-    useAppStore.persist.rehydrate()
-    setIsHydrated(true)
+    // Guard: Only run on client
+    if (typeof window === 'undefined') return
+
+    try {
+      // Rehydrate the stores on the client
+      useAuthStore.persist.rehydrate()
+      useAppStore.persist.rehydrate()
+    } catch (error) {
+      console.error('Store rehydration error:', error)
+    } finally {
+      // Always mark as hydrated to prevent infinite loading
+      setIsHydrated(true)
+    }
   }, [])
 
   if (!isHydrated) {
