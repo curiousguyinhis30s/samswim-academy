@@ -24,7 +24,7 @@ export default function App() {
   const [adminPage, setAdminPage] = useState<AdminPage>('dashboard')
   const [studentId, setStudentId] = useState<number | null>(null)
 
-  const { initialize, isInitialized, clients } = useAppStore()
+  const { initialize, clients } = useAppStore()
 
   // Initialize app data
   useEffect(() => {
@@ -58,8 +58,9 @@ export default function App() {
     setAdminPage('dashboard')
   }
 
-  // Loading state
-  if (isLoading || !isInitialized) {
+  // Loading state - only wait for local loading, not isInitialized
+  // This allows showing landing page even without tenant data
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
