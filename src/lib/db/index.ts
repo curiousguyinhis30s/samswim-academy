@@ -1,5 +1,3 @@
-import Dexie, { Table } from 'dexie'
-
 // Types for the database
 export interface Tenant {
   id?: number
@@ -285,82 +283,131 @@ export interface LessonNote {
   updatedAt: Date
 }
 
-// Database class
-class SamSwimDatabase extends Dexie {
-  tenants!: Table<Tenant>
-  users!: Table<User>
-  userRelationships!: Table<UserRelationship>
-  availabilitySchedules!: Table<AvailabilitySchedule>
-  resources!: Table<Resource>
-  serviceTypes!: Table<ServiceType>
-  bookings!: Table<Booking>
-  bookingParticipants!: Table<BookingParticipant>
-  skillCategories!: Table<SkillCategory>
-  skills!: Table<Skill>
-  skillAssessments!: Table<SkillAssessment>
-  invoices!: Table<Invoice>
-  invoiceItems!: Table<InvoiceItem>
-  creditPackages!: Table<CreditPackage>
-  clientCredits!: Table<ClientCredit>
-  expenses!: Table<Expense>
-  messages!: Table<Message>
-  auditLogs!: Table<AuditLog>
-  lessonNotes!: Table<LessonNote>
+// Lazy-loaded database singleton
+let dbInstance: import('dexie').default | null = null
+let dbPromise: Promise<import('dexie').default> | null = null
 
-  constructor() {
-    super('samswim-academy')
-
-    this.version(1).stores({
-      tenants: '++id, slug',
-      users: '++id, tenantId, email, role',
-      userRelationships: '++id, tenantId, parentId, childId',
-      availabilitySchedules: '++id, tenantId, instructorId, dayOfWeek',
-      resources: '++id, tenantId, resourceType',
-      serviceTypes: '++id, tenantId, isActive',
-      bookings: '++id, tenantId, instructorId, startTime, status',
-      bookingParticipants: '++id, tenantId, bookingId, clientId',
-      skillCategories: '++id, tenantId, displayOrder',
-      skills: '++id, tenantId, categoryId',
-      skillAssessments: '++id, tenantId, studentId, skillId',
-      invoices: '++id, tenantId, clientId, status',
-      invoiceItems: '++id, tenantId, invoiceId',
-      creditPackages: '++id, tenantId, isActive',
-      clientCredits: '++id, tenantId, clientId',
-      expenses: '++id, tenantId, category, expenseDate',
-      messages: '++id, tenantId, senderId, recipientId, isRead',
-      auditLogs: '++id, tenantId, userId, entityType, entityId',
-      lessonNotes: '++id, tenantId, bookingId, studentId, coachId',
-    })
-  }
-}
-
-// Only create database instance on the client side
-let dbInstance: SamSwimDatabase | null = null
-
-function getDb(): SamSwimDatabase {
+async function initDb(): Promise<import('dexie').default> {
   if (typeof window === 'undefined') {
-    // Return a proxy that defers the error until actual method calls
-    // This prevents errors during module import on SSR
-    return new Proxy({} as SamSwimDatabase, {
-      get: (_target, prop) => {
-        // Allow typeof checks and property existence checks
-        if (prop === 'then' || prop === Symbol.toStringTag) {
-          return undefined
-        }
-        // Return a function that throws when called (deferred error)
-        return () => {
-          throw new Error('Database cannot be accessed on the server side')
+    throw new Error('Database can only be initialized on the client side')
+  }
+
+  if (dbInstance) return dbInstance
+
+  if (!dbPromise) {
+    dbPromise = (async () => {
+      const Dexie = (await import('dexie')).default
+
+      class SamSwimDatabase extends Dexie {
+        tenants!: import('dexie').Table<Tenant>
+        users!: import('dexie').Table<User>
+        userRelationships!: import('dexie').Table<UserRelationship>
+        availabilitySchedules!: import('dexie').Table<AvailabilitySchedule>
+        resources!: import('dexie').Table<Resource>
+        serviceTypes!: import('dexie').Table<ServiceType>
+        bookings!: import('dexie').Table<Booking>
+        bookingParticipants!: import('dexie').Table<BookingParticipant>
+        skillCategories!: import('dexie').Table<SkillCategory>
+        skills!: import('dexie').Table<Skill>
+        skillAssessments!: import('dexie').Table<SkillAssessment>
+        invoices!: import('dexie').Table<Invoice>
+        invoiceItems!: import('dexie').Table<InvoiceItem>
+        creditPackages!: import('dexie').Table<CreditPackage>
+        clientCredits!: import('dexie').Table<ClientCredit>
+        expenses!: import('dexie').Table<Expense>
+        messages!: import('dexie').Table<Message>
+        auditLogs!: import('dexie').Table<AuditLog>
+        lessonNotes!: import('dexie').Table<LessonNote>
+
+        constructor() {
+          super('samswim-academy')
+
+          this.version(1).stores({
+            tenants: '++id, slug',
+            users: '++id, tenantId, email, role',
+            userRelationships: '++id, tenantId, parentId, childId',
+            availabilitySchedules: '++id, tenantId, instructorId, dayOfWeek',
+            resources: '++id, tenantId, resourceType',
+            serviceTypes: '++id, tenantId, isActive',
+            bookings: '++id, tenantId, instructorId, startTime, status',
+            bookingParticipants: '++id, tenantId, bookingId, clientId',
+            skillCategories: '++id, tenantId, displayOrder',
+            skills: '++id, tenantId, categoryId',
+            skillAssessments: '++id, tenantId, studentId, skillId',
+            invoices: '++id, tenantId, clientId, status',
+            invoiceItems: '++id, tenantId, invoiceId',
+            creditPackages: '++id, tenantId, isActive',
+            clientCredits: '++id, tenantId, clientId',
+            expenses: '++id, tenantId, category, expenseDate',
+            messages: '++id, tenantId, senderId, recipientId, isRead',
+            auditLogs: '++id, tenantId, userId, entityType, entityId',
+            lessonNotes: '++id, tenantId, bookingId, studentId, coachId',
+          })
         }
       }
-    })
+
+      dbInstance = new SamSwimDatabase()
+      return dbInstance
+    })()
   }
-  return (dbInstance ??= new SamSwimDatabase())
+
+  return dbPromise
 }
 
-export const db = getDb()
+// Create a proxy that lazily initializes the database
+type DbType = {
+  tenants: import('dexie').Table<Tenant>
+  users: import('dexie').Table<User>
+  userRelationships: import('dexie').Table<UserRelationship>
+  availabilitySchedules: import('dexie').Table<AvailabilitySchedule>
+  resources: import('dexie').Table<Resource>
+  serviceTypes: import('dexie').Table<ServiceType>
+  bookings: import('dexie').Table<Booking>
+  bookingParticipants: import('dexie').Table<BookingParticipant>
+  skillCategories: import('dexie').Table<SkillCategory>
+  skills: import('dexie').Table<Skill>
+  skillAssessments: import('dexie').Table<SkillAssessment>
+  invoices: import('dexie').Table<Invoice>
+  invoiceItems: import('dexie').Table<InvoiceItem>
+  creditPackages: import('dexie').Table<CreditPackage>
+  clientCredits: import('dexie').Table<ClientCredit>
+  expenses: import('dexie').Table<Expense>
+  messages: import('dexie').Table<Message>
+  auditLogs: import('dexie').Table<AuditLog>
+  lessonNotes: import('dexie').Table<LessonNote>
+}
+
+// Export a function to get the database (async)
+export async function getDb(): Promise<DbType> {
+  return initDb() as unknown as Promise<DbType>
+}
+
+// For backwards compatibility, export a synchronous db object
+// that will be null on the server and properly initialized on the client
+export const db: DbType = typeof window !== 'undefined'
+  ? new Proxy({} as DbType, {
+      get: (_target, prop: string) => {
+        if (!dbInstance) {
+          // Initialize synchronously if possible (for already-initialized case)
+          // or throw if not yet initialized
+          throw new Error(`Database not initialized. Call getDb() first or ensure seedDemoData() was called.`)
+        }
+        return (dbInstance as unknown as Record<string, unknown>)[prop]
+      }
+    })
+  : new Proxy({} as DbType, {
+      get: () => {
+        // Return a safe no-op for SSR
+        return new Proxy({}, {
+          get: () => async () => undefined
+        })
+      }
+    })
 
 // Helper to seed default swimming skills
 export async function seedDefaultSwimmingSkills(tenantId: number) {
+  const database = await getDb()
+
   const categories = [
     { name: 'Water Safety', description: 'Essential safety skills', displayOrder: 1 },
     { name: 'Basic Strokes', description: 'Fundamental swimming strokes', displayOrder: 2 },
@@ -407,7 +454,7 @@ export async function seedDefaultSwimmingSkills(tenantId: number) {
   }
 
   for (const category of categories) {
-    const categoryId = await db.skillCategories.add({
+    const categoryId = await database.skillCategories.add({
       tenantId,
       ...category,
       isTemplate: false,
@@ -416,7 +463,7 @@ export async function seedDefaultSwimmingSkills(tenantId: number) {
 
     const categorySkills = skills[category.name] || []
     for (let i = 0; i < categorySkills.length; i++) {
-      await db.skills.add({
+      await database.skills.add({
         tenantId,
         categoryId: categoryId as number,
         name: categorySkills[i],
@@ -435,3 +482,6 @@ export async function seedDefaultSwimmingSkills(tenantId: number) {
     }
   }
 }
+
+// Re-export getDb as R for backwards compatibility with existing imports
+export { seedDefaultSwimmingSkills as R }

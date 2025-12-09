@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { db, User, Tenant, seedDefaultSwimmingSkills } from '@/lib/db'
+import { getDb, User, Tenant, seedDefaultSwimmingSkills } from '@/lib/db'
 
 interface AuthState {
   user: User | null
@@ -67,6 +67,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null })
 
         try {
+          const db = await getDb()
           // Find user by email
           const user = await db.users.where('email').equals(email.toLowerCase()).first()
 
@@ -108,6 +109,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null })
 
         try {
+          const db = await getDb()
           // Check if email already exists
           const existingUser = await db.users.where('email').equals(data.email.toLowerCase()).first()
           if (existingUser) {

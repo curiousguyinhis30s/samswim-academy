@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { db, Tenant, User, Booking, BookingParticipant, ServiceType, Resource, SkillCategory, Skill, SkillAssessment, LessonNote } from '@/lib/db'
+import { getDb, Tenant, User, Booking, BookingParticipant, ServiceType, Resource, SkillCategory, Skill, SkillAssessment, LessonNote } from '@/lib/db'
 
 // SSR-safe localStorage wrapper
 const safeLocalStorage = {
@@ -83,6 +83,7 @@ export const useAppStore = create<AppState>()(
         }
 
         try {
+          const db = await getDb()
           const tenant = await db.tenants.toCollection().first()
           if (!tenant) {
             set({ isInitialized: true })
@@ -103,6 +104,7 @@ export const useAppStore = create<AppState>()(
         const { tenant } = get()
         if (!tenant?.id) return
 
+        const db = await getDb()
         const [clients, instructors, bookings, participants, serviceTypes, resources, skillCategories, skills, assessments, lessonNotes] = await Promise.all([
           db.users.where('tenantId').equals(tenant.id).and(u => u.role === 'client').toArray(),
           db.users.where('tenantId').equals(tenant.id).and(u => u.role === 'instructor' || u.role === 'owner').toArray(),
@@ -123,6 +125,7 @@ export const useAppStore = create<AppState>()(
         const { tenant } = get()
         if (!tenant?.id) throw new Error('No tenant')
 
+        const db = await getDb()
         const id = await db.users.add({
           ...clientData,
           tenantId: tenant.id,
@@ -139,11 +142,13 @@ export const useAppStore = create<AppState>()(
       },
 
       updateClient: async (id, updates) => {
+        const db = await getDb()
         await db.users.update(parseInt(id), { ...updates, updatedAt: new Date() })
         await get().refreshData()
       },
 
       deleteClient: async (id) => {
+        const db = await getDb()
         await db.users.delete(parseInt(id))
         await get().refreshData()
       },
@@ -155,6 +160,7 @@ export const useAppStore = create<AppState>()(
         const { clientId, ...bookingFields } = bookingData
         const clientIdNum = parseInt(clientId)
 
+        const db = await getDb()
         const bookingId = await db.bookings.add({
           ...bookingFields,
           tenantId: tenant.id,
@@ -177,17 +183,20 @@ export const useAppStore = create<AppState>()(
       },
 
       updateBooking: async (id, updates) => {
+        const db = await getDb()
         await db.bookings.update(id, { ...updates, updatedAt: new Date() })
         await get().refreshData()
       },
 
       deleteBooking: async (id) => {
+        const db = await getDb()
         await db.bookingParticipants.where('bookingId').equals(id).delete()
         await db.bookings.delete(id)
         await get().refreshData()
       },
 
       updateAttendance: async (participantId, status) => {
+        const db = await getDb()
         await db.bookingParticipants.update(participantId, {
           attendanceStatus: status,
           checkedInAt: status === 'present' ? new Date() : undefined,
@@ -199,6 +208,7 @@ export const useAppStore = create<AppState>()(
         const { tenant, currentUser } = get()
         if (!tenant?.id || !currentUser?.id) throw new Error('No tenant or user')
 
+        const db = await getDb()
         // Check if assessment already exists for this client + skill
         const existing = await db.skillAssessments
           .where('tenantId').equals(tenant.id)
@@ -234,6 +244,7 @@ export const useAppStore = create<AppState>()(
         const { tenant, currentUser } = get()
         if (!tenant?.id || !currentUser?.id) throw new Error('No tenant or user')
 
+        const db = await getDb()
         const noteId = await db.lessonNotes.add({
           tenantId: tenant.id,
           bookingId: noteData.bookingId,
@@ -253,6 +264,7 @@ export const useAppStore = create<AppState>()(
       },
 
       updateLessonNote: async (id, updates) => {
+        const db = await getDb()
         await db.lessonNotes.update(id, { ...updates, updatedAt: new Date() })
         await get().refreshData()
       },

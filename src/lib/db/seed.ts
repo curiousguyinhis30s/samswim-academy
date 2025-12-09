@@ -1,4 +1,4 @@
-import { db, seedDefaultSwimmingSkills } from './index'
+import { getDb, seedDefaultSwimmingSkills } from './index'
 
 export const CURRENCIES = [
   { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
@@ -16,6 +16,8 @@ export async function seedDemoData() {
   }
 
   try {
+    const db = await getDb()
+
     // Check if already seeded
     const existingTenant = await db.tenants.where('slug').equals('samswim-academy').first()
     if (existingTenant) {

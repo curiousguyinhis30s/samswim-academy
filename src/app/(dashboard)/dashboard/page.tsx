@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/lib/store/auth'
-import { db, User } from '@/lib/db'
+import { getDb, User } from '@/lib/db'
 import { Avatar, formatCurrency } from '@/components/ui'
 
 interface DashboardStats {
@@ -28,6 +28,8 @@ export default function DashboardPage() {
       if (!tenant?.id) return
 
       try {
+        const db = await getDb()
+
         const clients = await db.users
           .where('tenantId')
           .equals(tenant.id)
