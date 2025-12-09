@@ -337,13 +337,27 @@ class SamSwimDatabase extends Dexie {
 // Only create database instance on the client side
 let dbInstance: SamSwimDatabase | null = null
 
-export const db: SamSwimDatabase = typeof window !== 'undefined'
-  ? (dbInstance ??= new SamSwimDatabase())
-  : (new Proxy({} as SamSwimDatabase, {
-      get: () => {
-        throw new Error('Database cannot be accessed on the server side')
+function getDb(): SamSwimDatabase {
+  if (typeof window === 'undefined') {
+    // Return a proxy that defers the error until actual method calls
+    // This prevents errors during module import on SSR
+    return new Proxy({} as SamSwimDatabase, {
+      get: (_target, prop) => {
+        // Allow typeof checks and property existence checks
+        if (prop === 'then' || prop === Symbol.toStringTag) {
+          return undefined
+        }
+        // Return a function that throws when called (deferred error)
+        return () => {
+          throw new Error('Database cannot be accessed on the server side')
+        }
       }
-    }))
+    })
+  }
+  return (dbInstance ??= new SamSwimDatabase())
+}
+
+export const db = getDb()
 
 // Helper to seed default swimming skills
 export async function seedDefaultSwimmingSkills(tenantId: number) {
