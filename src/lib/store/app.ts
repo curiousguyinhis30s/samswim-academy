@@ -2,6 +2,23 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { db, Tenant, User, Booking, BookingParticipant, ServiceType, Resource, SkillCategory, Skill, SkillAssessment, LessonNote } from '@/lib/db'
 
+// Custom storage that handles SSR
+const customStorage = {
+  getItem: (name: string) => {
+    if (typeof window === 'undefined') return null
+    const item = localStorage.getItem(name)
+    return item ? JSON.parse(item) : null
+  },
+  setItem: (name: string, value: unknown) => {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(name, JSON.stringify(value))
+  },
+  removeItem: (name: string) => {
+    if (typeof window === 'undefined') return
+    localStorage.removeItem(name)
+  },
+}
+
 interface AppState {
   tenant: Tenant | null
   currentUser: User | null
@@ -229,9 +246,11 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'samswim-app',
+      storage: customStorage,
       partialize: (state) => ({
         isInitialized: state.isInitialized,
       }),
+      skipHydration: true,
     }
   )
 )

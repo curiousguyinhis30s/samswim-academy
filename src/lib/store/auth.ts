@@ -38,6 +38,23 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
   return passwordHash === hash
 }
 
+// Custom storage that handles SSR
+const customStorage = {
+  getItem: (name: string) => {
+    if (typeof window === 'undefined') return null
+    const item = localStorage.getItem(name)
+    return item ? JSON.parse(item) : null
+  },
+  setItem: (name: string, value: unknown) => {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(name, JSON.stringify(value))
+  },
+  removeItem: (name: string) => {
+    if (typeof window === 'undefined') return
+    localStorage.removeItem(name)
+  },
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -179,11 +196,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'samswim-auth',
+      storage: customStorage,
       partialize: (state) => ({
         user: state.user,
         tenant: state.tenant,
         isAuthenticated: state.isAuthenticated,
       }),
+      skipHydration: true,
     }
   )
 )

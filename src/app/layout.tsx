@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { StoreProvider } from '@/components/providers/StoreProvider'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://samswim.vercel.app'),
@@ -57,7 +58,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   )
 }
