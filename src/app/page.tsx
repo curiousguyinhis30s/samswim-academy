@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { seedDemoData } from '@/lib/db/seed'
 import { useAppStore } from '@/lib/store/app'
 
@@ -23,12 +23,23 @@ export default function App() {
   const [view, setView] = useState<AppView>('landing')
   const [adminPage, setAdminPage] = useState<AdminPage>('dashboard')
   const [studentId, setStudentId] = useState<number | null>(null)
+  const initRef = useRef(false)
 
   const { initialize, clients } = useAppStore()
 
-  // Initialize app data
+  // Initialize app data - only once
   useEffect(() => {
+    // Guard: Prevent double initialization
+    if (initRef.current) return
+    initRef.current = true
+
     async function init() {
+      // Guard: Only run on client
+      if (typeof window === 'undefined') {
+        setIsLoading(false)
+        return
+      }
+
       try {
         await seedDemoData()
         await initialize()
@@ -39,7 +50,7 @@ export default function App() {
       }
     }
     init()
-  }, [initialize])
+  }, []) // Empty dependency - run only once on mount
 
   // Handle login
   const handleLogin = (type: 'admin' | 'student', userId?: number) => {
