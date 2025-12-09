@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { db, Tenant, User, Booking, BookingParticipant, ServiceType, Resource, SkillCategory, Skill, SkillAssessment } from '@/lib/db'
+import { db, Tenant, User, Booking, BookingParticipant, ServiceType, Resource, SkillCategory, Skill, SkillAssessment, LessonNote } from '@/lib/db'
 
 interface AppState {
   tenant: Tenant | null
@@ -17,6 +17,7 @@ interface AppState {
   skillCategories: SkillCategory[]
   skills: Skill[]
   assessments: SkillAssessment[]
+  lessonNotes: LessonNote[]
 
   // Actions
   initialize: () => Promise<void>
@@ -35,6 +36,10 @@ interface AppState {
 
   // Assessment actions
   addAssessment: (assessment: { clientId: string; skillId: string; level: number; notes?: string; assessedAt: Date; assessedBy: string }) => Promise<void>
+
+  // Lesson notes actions
+  addLessonNote: (note: { bookingId: number; studentId: number; content: string; mood?: LessonNote['mood']; highlights?: string[]; areasToImprove?: string[]; privateNote?: string }) => Promise<number>
+  updateLessonNote: (id: number, updates: Partial<LessonNote>) => Promise<void>
 }
 
 export const useAppStore = create<AppState>()(
@@ -52,6 +57,7 @@ export const useAppStore = create<AppState>()(
       skillCategories: [],
       skills: [],
       assessments: [],
+      lessonNotes: [],
 
       initialize: async () => {
         const tenant = await db.tenants.toCollection().first()
@@ -67,7 +73,7 @@ export const useAppStore = create<AppState>()(
         const { tenant } = get()
         if (!tenant?.id) return
 
-        const [clients, instructors, bookings, participants, serviceTypes, resources, skillCategories, skills, assessments] = await Promise.all([
+        const [clients, instructors, bookings, participants, serviceTypes, resources, skillCategories, skills, assessments, lessonNotes] = await Promise.all([
           db.users.where('tenantId').equals(tenant.id).and(u => u.role === 'client').toArray(),
           db.users.where('tenantId').equals(tenant.id).and(u => u.role === 'instructor' || u.role === 'owner').toArray(),
           db.bookings.where('tenantId').equals(tenant.id).toArray(),
@@ -77,9 +83,10 @@ export const useAppStore = create<AppState>()(
           db.skillCategories.where('tenantId').equals(tenant.id).toArray(),
           db.skills.where('tenantId').equals(tenant.id).toArray(),
           db.skillAssessments.where('tenantId').equals(tenant.id).toArray(),
+          db.lessonNotes.where('tenantId').equals(tenant.id).toArray(),
         ])
 
-        set({ clients, instructors, bookings, participants, serviceTypes, resources, skillCategories, skills, assessments })
+        set({ clients, instructors, bookings, participants, serviceTypes, resources, skillCategories, skills, assessments, lessonNotes })
       },
 
       addClient: async (clientData) => {
@@ -190,6 +197,33 @@ export const useAppStore = create<AppState>()(
           })
         }
 
+        await get().refreshData()
+      },
+
+      addLessonNote: async (noteData) => {
+        const { tenant, currentUser } = get()
+        if (!tenant?.id || !currentUser?.id) throw new Error('No tenant or user')
+
+        const noteId = await db.lessonNotes.add({
+          tenantId: tenant.id,
+          bookingId: noteData.bookingId,
+          studentId: noteData.studentId,
+          coachId: currentUser.id,
+          content: noteData.content,
+          mood: noteData.mood,
+          highlights: noteData.highlights,
+          areasToImprove: noteData.areasToImprove,
+          privateNote: noteData.privateNote,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+
+        await get().refreshData()
+        return noteId as number
+      },
+
+      updateLessonNote: async (id, updates) => {
+        await db.lessonNotes.update(id, { ...updates, updatedAt: new Date() })
         await get().refreshData()
       },
     }),

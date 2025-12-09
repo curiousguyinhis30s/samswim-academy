@@ -270,6 +270,21 @@ export interface AuditLog {
   createdAt: Date
 }
 
+export interface LessonNote {
+  id?: number
+  tenantId: number
+  bookingId: number
+  studentId: number
+  coachId: number
+  content: string
+  mood?: 'excellent' | 'good' | 'okay' | 'struggling' | 'absent'
+  highlights?: string[]
+  areasToImprove?: string[]
+  privateNote?: string  // Coach-only note not shared with parents
+  createdAt: Date
+  updatedAt: Date
+}
+
 // Database class
 class SamSwimDatabase extends Dexie {
   tenants!: Table<Tenant>
@@ -290,6 +305,7 @@ class SamSwimDatabase extends Dexie {
   expenses!: Table<Expense>
   messages!: Table<Message>
   auditLogs!: Table<AuditLog>
+  lessonNotes!: Table<LessonNote>
 
   constructor() {
     super('samswim-academy')
@@ -313,6 +329,7 @@ class SamSwimDatabase extends Dexie {
       expenses: '++id, tenantId, category, expenseDate',
       messages: '++id, tenantId, senderId, recipientId, isRead',
       auditLogs: '++id, tenantId, userId, entityType, entityId',
+      lessonNotes: '++id, tenantId, bookingId, studentId, coachId',
     })
   }
 }
