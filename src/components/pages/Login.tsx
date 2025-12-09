@@ -8,14 +8,15 @@ interface LoginProps {
   clients: Array<{ id?: number; fullName: string; email?: string }>
 }
 
-// Demo credentials
+// Demo credentials - loaded from environment or use defaults for demo mode
+// These are intentionally simple demo credentials, not production secrets
 const DEMO_CREDENTIALS = {
   coach: {
-    email: 'sam@samswim.ae',
-    password: 'coach123',
+    email: process.env.NEXT_PUBLIC_DEMO_COACH_EMAIL || 'sam@samswim.ae',
+    password: process.env.NEXT_PUBLIC_DEMO_COACH_PASS || 'demo',
   },
   student: {
-    password: 'student123',
+    password: process.env.NEXT_PUBLIC_DEMO_STUDENT_PASS || 'demo',
   },
 }
 
@@ -146,10 +147,10 @@ export function Login({ onLogin, onBack, clients }: LoginProps) {
                   <div>
                     <p className="text-sm font-medium text-amber-800">Demo Mode</p>
                     <p className="text-sm text-amber-700 mt-1">
-                      Coach: <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">sam@samswim.ae</code> / <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">coach123</code>
+                      Coach: <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">{DEMO_CREDENTIALS.coach.email}</code> / <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">{DEMO_CREDENTIALS.coach.password}</code>
                     </p>
                     <p className="text-sm text-amber-700">
-                      Student: Select name, password <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">student123</code>
+                      Student: Select name, password <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">{DEMO_CREDENTIALS.student.password}</code>
                     </p>
                   </div>
                 </div>
@@ -243,7 +244,7 @@ export function Login({ onLogin, onBack, clients }: LoginProps) {
               {/* Password hint */}
               <p className="text-center text-sm text-slate-500">
                 Demo password: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs text-slate-700">
-                  {mode === 'coach' ? 'coach123' : 'student123'}
+                  {mode === 'coach' ? DEMO_CREDENTIALS.coach.password : DEMO_CREDENTIALS.student.password}
                 </code>
               </p>
             </form>
