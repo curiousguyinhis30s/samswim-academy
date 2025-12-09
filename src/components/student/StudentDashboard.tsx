@@ -11,6 +11,28 @@ interface StudentDashboardProps {
   onNavigate: (page: StudentPageType) => void
 }
 
+// Success stories from other students
+const successStories = [
+  {
+    name: 'Ahmed K.',
+    age: '8 years old',
+    text: 'I was scared of water but now I can swim 25 meters!',
+    achievement: 'Freestyle Champion',
+  },
+  {
+    name: 'Sara M.',
+    age: '6 years old',
+    text: 'Coach Sam makes swimming so fun. I love my lessons!',
+    achievement: 'Water Safety',
+  },
+  {
+    name: 'Omar A.',
+    age: '10 years old',
+    text: 'I learned butterfly stroke in just 3 months.',
+    achievement: 'All Strokes Mastered',
+  },
+]
+
 export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProps) {
   const { clients, bookings, participants, serviceTypes, assessments, skills, skillCategories } = useAppStore()
 
@@ -87,7 +109,7 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
                 <circle
                   cx="40" cy="40" r="34"
                   fill="none"
-                  stroke="#1E5AA8"
+                  stroke="#2563EB"
                   strokeWidth="6"
                   strokeLinecap="round"
                   strokeDasharray={`${progressStats.percentage * 2.14} 214`}
@@ -102,7 +124,7 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
               <p className="text-slate-500 text-sm">{progressStats.masteredSkills} of {progressStats.totalSkills} skills</p>
               <button
                 onClick={() => onNavigate('progress')}
-                className="mt-2 text-sm text-ocean-500 font-medium hover:text-ocean-600"
+                className="mt-2 text-sm text-blue-600 font-medium hover:text-blue-700"
               >
                 View details →
               </button>
@@ -114,13 +136,13 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
         {nextLesson && (
           <button
             onClick={() => onNavigate('schedule')}
-            className="w-full bg-ocean-500 text-white rounded-xl p-5 mb-4 text-left hover:bg-ocean-600 transition-colors"
+            className="w-full bg-blue-600 text-white rounded-xl p-5 mb-4 text-left hover:bg-blue-700 transition-colors"
           >
-            <p className="text-ocean-200 text-xs font-medium uppercase tracking-wide mb-1">Next Lesson</p>
+            <p className="text-blue-200 text-xs font-medium uppercase tracking-wide mb-1">Next Lesson</p>
             <p className="font-semibold text-lg">
               {serviceTypes.find(s => s.id === nextLesson.serviceTypeId)?.name || 'Swimming Lesson'}
             </p>
-            <p className="text-ocean-200 text-sm mt-1">
+            <p className="text-blue-200 text-sm mt-1">
               {new Date(nextLesson.startTime).toLocaleDateString('en-US', {
                 weekday: 'short',
                 month: 'short',
@@ -152,7 +174,7 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
             <h2 className="font-semibold text-slate-900">Skills</h2>
             <button
               onClick={() => onNavigate('progress')}
-              className="text-sm text-ocean-500 font-medium hover:text-ocean-600"
+              className="text-sm text-blue-600 font-medium hover:text-blue-700"
             >
               See all
             </button>
@@ -167,7 +189,7 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
                 <div className="flex items-center gap-3">
                   <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-ocean-500 rounded-full"
+                      className="h-full bg-blue-600 rounded-full"
                       style={{ width: `${category.percentage}%` }}
                     />
                   </div>
@@ -180,12 +202,12 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
 
         {/* Upcoming Lessons */}
         {upcomingLessons.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-6">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
               <h2 className="font-semibold text-slate-900">Upcoming</h2>
               <button
                 onClick={() => onNavigate('schedule')}
-                className="text-sm text-ocean-500 font-medium hover:text-ocean-600"
+                className="text-sm text-blue-600 font-medium hover:text-blue-700"
               >
                 Calendar
               </button>
@@ -199,7 +221,7 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
                 return (
                   <div key={lesson.id} className="px-4 py-3 flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center text-xs ${
-                      isToday ? 'bg-ocean-500 text-white' : 'bg-slate-100 text-slate-700'
+                      isToday ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'
                     }`}>
                       <span className="font-bold leading-none">{lessonDate.getDate()}</span>
                       <span className="uppercase text-[10px] leading-none mt-0.5">
@@ -211,7 +233,7 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
                       <p className="text-xs text-slate-500">{formatTime(lessonDate)}</p>
                     </div>
                     {isToday && (
-                      <span className="px-2 py-0.5 text-xs font-medium bg-ocean-50 text-ocean-600 rounded-full">
+                      <span className="px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-600 rounded-full">
                         Today
                       </span>
                     )}
@@ -221,6 +243,38 @@ export function StudentDashboard({ studentId, onNavigate }: StudentDashboardProp
             </div>
           </div>
         )}
+
+        {/* Success Stories */}
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-100">
+            <h2 className="font-semibold text-slate-900">Success Stories</h2>
+            <p className="text-xs text-slate-500 mt-0.5">See what other swimmers achieved</p>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {successStories.map((story, index) => (
+              <div key={index} className="px-4 py-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-semibold text-sm">{story.name.charAt(0)}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-medium text-slate-900 text-sm">{story.name}</p>
+                      <span className="text-xs text-slate-400">{story.age}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 italic">"{story.text}"</p>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-50 rounded-full">
+                      <svg className="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-xs font-medium text-emerald-700">{story.achievement}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

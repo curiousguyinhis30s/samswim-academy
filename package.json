@@ -9,11 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
     "@tanstack/react-query": "^5.90.12",
+    "@types/three": "^0.181.0",
     "dexie": "^4.2.1",
     "next": "^14.2.33",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "three": "^0.181.2",
     "zustand": "^5.0.9"
   },
   "devDependencies": {

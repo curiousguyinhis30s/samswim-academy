@@ -8,71 +8,81 @@ interface LoginProps {
   clients: Array<{ id?: number; fullName: string; email?: string }>
 }
 
-// Test credentials for demo
-const TEST_CREDENTIALS = {
-  admin: {
+// Demo credentials
+const DEMO_CREDENTIALS = {
+  coach: {
     email: 'sam@samswim.ae',
-    password: 'admin123',
+    password: 'coach123',
   },
   student: {
-    email: 'ahmed@email.com',
     password: 'student123',
   },
 }
 
 export function Login({ onLogin, onBack, clients }: LoginProps) {
-  const [mode, setMode] = useState<'select' | 'admin' | 'student'>('select')
+  const [mode, setMode] = useState<'select' | 'coach' | 'student'>('select')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null)
   const [error, setError] = useState('')
 
-  const handleAdminLogin = () => {
-    if (email === TEST_CREDENTIALS.admin.email && password === TEST_CREDENTIALS.admin.password) {
+  const handleCoachLogin = () => {
+    if (email === DEMO_CREDENTIALS.coach.email && password === DEMO_CREDENTIALS.coach.password) {
       onLogin('admin')
     } else {
-      setError('Invalid credentials. Check the test credentials below.')
+      setError('Invalid credentials')
     }
   }
 
   const handleStudentLogin = () => {
     if (!selectedStudent) {
-      setError('Please select a student')
+      setError('Please select your name')
       return
     }
-    if (password === TEST_CREDENTIALS.student.password) {
+    if (password === DEMO_CREDENTIALS.student.password) {
       onLogin('student', selectedStudent)
     } else {
-      setError('Invalid password. Check the test credentials below.')
+      setError('Invalid password')
     }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (mode === 'admin') {
-      handleAdminLogin()
+    if (mode === 'coach') {
+      handleCoachLogin()
     } else if (mode === 'student') {
       handleStudentLogin()
     }
   }
 
+  const resetForm = () => {
+    setMode('select')
+    setError('')
+    setEmail('')
+    setPassword('')
+    setSelectedStudent(null)
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-4 py-4">
-        <div className="max-w-lg mx-auto flex items-center">
+      <header className="bg-white border-b border-slate-200">
+        <div className="max-w-lg mx-auto px-4 py-4 flex items-center">
           <button
-            onClick={mode === 'select' ? onBack : () => { setMode('select'); setError(''); }}
-            className="p-2 -ml-2 text-slate-600 hover:text-slate-900 transition-colors"
+            onClick={mode === 'select' ? onBack : resetForm}
+            className="p-2 -ml-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+            aria-label="Go back"
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="ml-2 text-lg font-semibold text-slate-900">
-            {mode === 'select' ? 'Choose Account Type' : mode === 'admin' ? 'Admin Login' : 'Student Login'}
-          </h1>
+          <div className="ml-3">
+            <h1 className="text-lg font-semibold text-slate-900">
+              {mode === 'select' ? 'Sign In' : mode === 'coach' ? 'Coach Login' : 'Student Login'}
+            </h1>
+          </div>
         </div>
       </header>
 
@@ -80,29 +90,28 @@ export function Login({ onLogin, onBack, clients }: LoginProps) {
         <div className="w-full max-w-lg">
           {mode === 'select' ? (
             /* Account Type Selection */
-            <div className="space-y-4">
-              <p className="text-center text-slate-600 mb-8">
-                Select how you want to sign in
+            <div className="space-y-3">
+              <p className="text-slate-500 mb-6">
+                Select how you'd like to sign in
               </p>
 
-              {/* Admin Option */}
+              {/* Coach Option */}
               <button
-                onClick={() => { setMode('admin'); setEmail(TEST_CREDENTIALS.admin.email); }}
-                className="w-full bg-white rounded-2xl p-6 shadow-soft border border-slate-200 text-left hover:border-ocean-300 hover:shadow-medium transition-all group"
+                onClick={() => { setMode('coach'); setEmail(DEMO_CREDENTIALS.coach.email); }}
+                className="w-full bg-white rounded-xl p-5 border border-slate-200 text-left hover:border-slate-300 hover:shadow-sm transition-all group"
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-ocean-100 flex items-center justify-center flex-shrink-0 group-hover:bg-ocean-200 transition-colors">
-                    <svg className="w-7 h-7 text-ocean-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                     </svg>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-1">Admin / Coach</h3>
-                    <p className="text-sm text-slate-600">Manage clients, schedule, and settings</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-900">Coach</h3>
+                    <p className="text-sm text-slate-500">Manage lessons and students</p>
                   </div>
-                  <svg className="w-5 h-5 text-slate-400 group-hover:text-ocean-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg className="w-5 h-5 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </button>
@@ -110,70 +119,68 @@ export function Login({ onLogin, onBack, clients }: LoginProps) {
               {/* Student Option */}
               <button
                 onClick={() => setMode('student')}
-                className="w-full bg-white rounded-2xl p-6 shadow-soft border border-slate-200 text-left hover:border-algae-300 hover:shadow-medium transition-all group"
+                className="w-full bg-white rounded-xl p-5 border border-slate-200 text-left hover:border-slate-300 hover:shadow-sm transition-all group"
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-algae-100 flex items-center justify-center flex-shrink-0 group-hover:bg-algae-200 transition-colors">
-                    <svg className="w-7 h-7 text-algae-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
                     </svg>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-1">Student</h3>
-                    <p className="text-sm text-slate-600">View schedule and track progress</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-900">Student</h3>
+                    <p className="text-sm text-slate-500">View schedule and progress</p>
                   </div>
-                  <svg className="w-5 h-5 text-slate-400 group-hover:text-algae-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg className="w-5 h-5 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </button>
 
-              {/* Test Credentials Box */}
-              <div className="mt-8 bg-slate-100 rounded-xl p-4 border border-slate-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              {/* Demo Credentials */}
+              <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                   </svg>
-                  <span className="font-medium text-slate-700">Test Credentials</span>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="bg-white rounded-lg p-3">
-                    <p className="font-medium text-slate-900 mb-1">Admin Login:</p>
-                    <p className="text-slate-600">Email: <code className="bg-slate-100 px-1.5 py-0.5 rounded">{TEST_CREDENTIALS.admin.email}</code></p>
-                    <p className="text-slate-600">Password: <code className="bg-slate-100 px-1.5 py-0.5 rounded">{TEST_CREDENTIALS.admin.password}</code></p>
-                  </div>
-                  <div className="bg-white rounded-lg p-3">
-                    <p className="font-medium text-slate-900 mb-1">Student Login:</p>
-                    <p className="text-slate-600">Select any student from list</p>
-                    <p className="text-slate-600">Password: <code className="bg-slate-100 px-1.5 py-0.5 rounded">{TEST_CREDENTIALS.student.password}</code></p>
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">Demo Mode</p>
+                    <p className="text-sm text-amber-700 mt-1">
+                      Coach: <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">sam@samswim.ae</code> / <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">coach123</code>
+                    </p>
+                    <p className="text-sm text-amber-700">
+                      Student: Select name, password <code className="bg-amber-100 px-1.5 py-0.5 rounded text-xs">student123</code>
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
             /* Login Form */
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {mode === 'admin' ? (
-                /* Admin Form */
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {mode === 'coach' ? (
+                /* Coach Form */
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
                       placeholder="Enter your email"
+                      autoComplete="email"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-ocean-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
                       placeholder="Enter your password"
+                      autoComplete="current-password"
                     />
                   </div>
                 </>
@@ -181,74 +188,64 @@ export function Login({ onLogin, onBack, clients }: LoginProps) {
                 /* Student Form */
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Select Student</label>
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Select your name</label>
+                    <div className="space-y-2 max-h-56 overflow-y-auto rounded-xl border border-slate-200 p-2 bg-white">
                       {clients.map((client) => (
                         <button
                           key={client.id}
                           type="button"
                           onClick={() => setSelectedStudent(client.id!)}
-                          className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${
+                          className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
                             selectedStudent === client.id
-                              ? 'bg-algae-50 border-algae-300 text-algae-900'
-                              : 'bg-white border-slate-200 text-slate-900 hover:border-slate-300'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-slate-50 text-slate-900 hover:bg-slate-100'
                           }`}
                         >
                           <p className="font-medium">{client.fullName}</p>
-                          {client.email && <p className="text-sm text-slate-500">{client.email}</p>}
                         </button>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-algae-500 focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                       placeholder="Enter your password"
+                      autoComplete="current-password"
                     />
                   </div>
                 </>
               )}
 
               {error && (
-                <div className="bg-coral-50 text-coral-700 px-4 py-3 rounded-xl text-sm">
+                <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>
                   {error}
                 </div>
               )}
 
               <button
                 type="submit"
-                className={`w-full py-4 rounded-xl font-semibold text-white transition-all ${
-                  mode === 'admin'
-                    ? 'bg-ocean-500 hover:bg-ocean-600'
-                    : 'bg-algae-500 hover:bg-algae-600'
+                className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all ${
+                  mode === 'coach'
+                    ? 'bg-slate-900 hover:bg-slate-800'
+                    : 'bg-blue-600 hover:bg-blue-700'
                 }`}
               >
                 Sign In
               </button>
 
-              {/* Test Credentials Reminder */}
-              <div className="bg-slate-100 rounded-xl p-4 border border-slate-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-sm font-medium text-slate-700">Test Credentials</span>
-                </div>
-                <div className="text-sm text-slate-600">
-                  {mode === 'admin' ? (
-                    <>
-                      <p>Email: <code className="bg-white px-1.5 py-0.5 rounded">{TEST_CREDENTIALS.admin.email}</code></p>
-                      <p>Password: <code className="bg-white px-1.5 py-0.5 rounded">{TEST_CREDENTIALS.admin.password}</code></p>
-                    </>
-                  ) : (
-                    <p>Password: <code className="bg-white px-1.5 py-0.5 rounded">{TEST_CREDENTIALS.student.password}</code></p>
-                  )}
-                </div>
-              </div>
+              {/* Password hint */}
+              <p className="text-center text-sm text-slate-500">
+                Demo password: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs text-slate-700">
+                  {mode === 'coach' ? 'coach123' : 'student123'}
+                </code>
+              </p>
             </form>
           )}
         </div>
