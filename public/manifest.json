@@ -1,0 +1,17 @@
+{
+  "name": "Sam's Swim Academy",
+  "short_name": "SamSwim",
+  "description": "Professional swimming lesson management by Sam Maysem, Dubai",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0891b2",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
