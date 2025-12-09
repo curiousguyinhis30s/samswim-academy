@@ -8,42 +8,50 @@ interface StoreProviderProps {
 
 export function StoreProvider({ children }: StoreProviderProps) {
   const [isHydrated, setIsHydrated] = useState(false)
-  const [hydrationError, setHydrationError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Guard: Only run on client
-    if (typeof window === 'undefined') {
-      setIsHydrated(true)
-      return
-    }
+    // Immediately mark as hydrated - stores will handle their own hydration
+    // This prevents blocking the UI while stores initialize
+    let mounted = true
 
-    // Dynamically import stores only on client side
-    // This prevents any server-side access to localStorage or IndexedDB
     const hydrateStores = async () => {
       try {
-        console.log('[StoreProvider] Starting store hydration...')
+        // Dynamically import stores only on client side
+        // This prevents any server-side access to localStorage or IndexedDB
+        const [authModule, appModule] = await Promise.all([
+          import('@/lib/store/auth'),
+          import('@/lib/store/app'),
+        ])
 
-        const authModule = await import('@/lib/store/auth')
-        console.log('[StoreProvider] Auth store imported')
+        // Only rehydrate if component is still mounted
+        if (mounted) {
+          // Wrap in try-catch to handle any rehydration errors gracefully
+          try {
+            authModule.useAuthStore.persist.rehydrate()
+          } catch (e) {
+            console.warn('[StoreProvider] Auth store rehydration failed:', e)
+          }
 
-        const appModule = await import('@/lib/store/app')
-        console.log('[StoreProvider] App store imported')
-
-        authModule.useAuthStore.persist.rehydrate()
-        console.log('[StoreProvider] Auth store rehydrated')
-
-        appModule.useAppStore.persist.rehydrate()
-        console.log('[StoreProvider] App store rehydrated')
-
+          try {
+            appModule.useAppStore.persist.rehydrate()
+          } catch (e) {
+            console.warn('[StoreProvider] App store rehydration failed:', e)
+          }
+        }
       } catch (error) {
-        console.error('[StoreProvider] Store hydration error:', error)
-        setHydrationError(error instanceof Error ? error.message : 'Unknown error')
-      } finally {
-        setIsHydrated(true)
+        console.warn('[StoreProvider] Store import error:', error)
       }
     }
 
+    // Run hydration in background, don't block rendering
     hydrateStores()
+
+    // Mark hydrated immediately so UI renders
+    setIsHydrated(true)
+
+    return () => {
+      mounted = false
+    }
   }, [])
 
   if (!isHydrated) {
