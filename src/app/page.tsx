@@ -40,12 +40,22 @@ export default function App() {
         return
       }
 
+      // Set a timeout to ensure we don't get stuck forever
+      const timeout = setTimeout(() => {
+        console.warn('Initialization timeout - proceeding without data')
+        setIsLoading(false)
+      }, 5000)
+
       try {
+        console.log('Starting initialization...')
         await seedDemoData()
+        console.log('Demo data seeded')
         await initialize()
+        console.log('Store initialized')
       } catch (error) {
         console.error('Failed to initialize:', error)
       } finally {
+        clearTimeout(timeout)
         setIsLoading(false)
       }
     }
