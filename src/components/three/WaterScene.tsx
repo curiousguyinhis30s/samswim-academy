@@ -213,12 +213,39 @@ function CausticLight() {
 }
 
 export function WaterScene() {
+  // Check for WebGL support
+  const supportsWebGL = typeof window !== 'undefined' && (() => {
+    try {
+      const canvas = document.createElement('canvas')
+      return !!(
+        window.WebGLRenderingContext &&
+        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+      )
+    } catch {
+      return false
+    }
+  })()
+
+  if (!supportsWebGL) {
+    // Fallback gradient background for browsers without WebGL
+    return (
+      <div
+        className="absolute inset-0 z-0"
+        style={{ background: 'linear-gradient(180deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%)' }}
+      />
+    )
+  }
+
   return (
     <div className="absolute inset-0 z-0">
       <Canvas
         camera={{ position: [0, 2, 5], fov: 60 }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'linear-gradient(180deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%)' }}
+        onCreated={(state) => {
+          // Set pixel ratio for better rendering on high-DPI displays
+          state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+        }}
       >
         <CausticLight />
         <Water />
