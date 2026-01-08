@@ -16,10 +16,48 @@ export async function seedDemoData() {
   }
 
   try {
+    // First, try to clear any corrupted state
+    const Dexie = (await import('dexie')).default
+
+    // Check for URL reset parameter
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('reset') === 'true') {
+      console.log('URL reset requested, clearing database...')
+      await Dexie.delete('samswim-academy')
+      indexedDB.deleteDatabase('samswim-academy')
+      window.location.href = window.location.pathname
+      return null
+    }
+
     const db = await getDb()
 
-    // Check if already seeded
-    const existingTenant = await db.tenants.where('slug').equals('samswim-academy').first()
+    // Check if already seeded - with error handling for corrupted DB
+    let existingTenant = null
+    try {
+      existingTenant = await db.tenants.where('slug').equals('samswim-academy').first()
+    } catch (queryError) {
+      console.warn('Database query failed, attempting to clear and retry:', queryError)
+      // Clear corrupted database using multiple methods
+      try {
+        await Dexie.delete('samswim-academy')
+        indexedDB.deleteDatabase('samswim-academy')
+        // Also clear any other samswim databases
+        if (indexedDB.databases) {
+          const databases = await indexedDB.databases()
+          for (const dbInfo of databases) {
+            if (dbInfo.name?.includes('samswim')) {
+              indexedDB.deleteDatabase(dbInfo.name)
+            }
+          }
+        }
+      } catch (clearError) {
+        console.error('Failed to clear corrupted database:', clearError)
+      }
+      // Re-initialize after short delay
+      setTimeout(() => window.location.reload(), 100)
+      return null
+    }
+
     if (existingTenant) {
       console.log('Demo data already exists')
       return existingTenant

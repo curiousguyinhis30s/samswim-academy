@@ -3,6 +3,8 @@
 import { useState, useMemo } from 'react'
 import { useAppStore } from '@/lib/store/app'
 import { Button, Card, Badge, Avatar, Modal, Input, Select, Tabs, EmptyState, formatCurrency } from '@/components/ui'
+import { FadeIn, SlideIn, StaggerChildren, ScaleIn, FloatingElement } from '@/lib/animations/gsap-hooks'
+import { SwimmerFreestyle, Goggles } from '@/components/icons/SwimmingIcons'
 
 type TabType = 'all' | 'active' | 'inactive'
 
@@ -129,81 +131,90 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="px-4 sm:px-8 py-6 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Clients</h1>
-            <p className="text-slate-500 mt-1">Manage your swimming students</p>
+        {/* Header with SlideIn animation and Goggles icon */}
+        <SlideIn direction="left" duration={0.6}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                <Goggles size={28} className="text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Clients</h1>
+                <p className="text-slate-500 mt-1">Manage your swimming students</p>
+              </div>
+            </div>
+            <Button onClick={() => setShowAddClient(true)} className="bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Client
+            </Button>
           </div>
-          <Button onClick={() => setShowAddClient(true)}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Client
-          </Button>
-        </div>
+        </SlideIn>
 
         {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
-          <div className="relative flex-1 w-full sm:max-w-md">
-            <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search clients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-all"
-            />
-          </div>
-          <div className="flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as TabType)}
-                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800'
-                }`}
+        <FadeIn delay={0.2}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+            <div className="relative flex-1 w-full sm:max-w-md">
+              <svg
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                {tab.label}
-                <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${
-                  activeTab === tab.id ? 'bg-slate-100 text-slate-700' : 'bg-slate-200/50 text-slate-600'
-                }`}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search clients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as TabType)}
+                  className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
+                    activeTab === tab.id
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-800'
+                  }`}
+                >
+                  {tab.label}
+                  <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${
+                    activeTab === tab.id ? 'bg-cyan-100 text-cyan-700' : 'bg-slate-200/50 text-slate-600'
+                  }`}>
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        </FadeIn>
 
         {/* Client Grid */}
         {filteredClients.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-            <div className="w-20 h-20 mx-auto mb-6 bg-slate-100 rounded-xl flex items-center justify-center">
-              <svg className="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+          <FadeIn delay={0.3}>
+            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-cyan-50 to-teal-100 rounded-xl flex items-center justify-center">
+                <SwimmerFreestyle size={40} className="text-cyan-500" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">
+                {searchQuery ? 'No clients found' : 'No clients yet'}
+              </h3>
+              <p className="text-slate-500 max-w-sm mx-auto mb-6">
+                {searchQuery ? 'Try adjusting your search' : 'Add your first client to get started'}
+              </p>
+              {!searchQuery && (
+                <Button onClick={() => setShowAddClient(true)} className="bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700">Add Client</Button>
+              )}
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">
-              {searchQuery ? 'No clients found' : 'No clients yet'}
-            </h3>
-            <p className="text-slate-500 max-w-sm mx-auto mb-6">
-              {searchQuery ? 'Try adjusting your search' : 'Add your first client to get started'}
-            </p>
-            {!searchQuery && (
-              <Button onClick={() => setShowAddClient(true)}>Add Client</Button>
-            )}
-          </div>
+          </FadeIn>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <StaggerChildren stagger={0.08} y={20} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredClients.map((client, index) => {
               const stats = getClientStats(client.id!)
               const photoUrl = getClientPhoto(index)
@@ -213,16 +224,19 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
                 <button
                   key={client.id}
                   onClick={() => setSelectedClient(client.id!.toString())}
-                  className="group bg-white rounded-xl border border-slate-200 p-6 text-left transition-all duration-200 hover:shadow-md hover:border-slate-300"
+                  className="group bg-white rounded-xl border border-slate-200 p-6 text-left transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 hover:border-cyan-300 hover:scale-[1.02]"
+                  style={{ opacity: 1 }}
                 >
                   <div className="flex items-start gap-4 mb-5">
-                    {/* Photo with progress ring */}
+                    {/* Photo with progress ring and float animation */}
                     <div className="relative">
-                      <img
-                        src={photoUrl}
-                        alt={client.fullName}
-                        className="w-16 h-16 rounded-xl object-cover"
-                      />
+                      <FloatingElement amplitude={3} frequency={4} rotationAmplitude={0} duration={4} className="w-16 h-16">
+                        <img
+                          src={photoUrl}
+                          alt={client.fullName}
+                          className="w-16 h-16 rounded-xl object-cover"
+                        />
+                      </FloatingElement>
                       <svg className="absolute inset-0 w-full h-full -rotate-90">
                         <circle
                           cx="50%"
@@ -237,7 +251,7 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
                           cy="50%"
                           r="45%"
                           fill="none"
-                          stroke={progress >= 75 ? '#4CB963' : progress >= 50 ? '#1E5AA8' : '#1E5AA8'}
+                          stroke={progress >= 75 ? '#14B8A6' : progress >= 50 ? '#06B6D4' : '#22D3EE'}
                           strokeWidth="3"
                           strokeLinecap="round"
                           strokeDasharray={`${progress * 2.83} 283`}
@@ -263,16 +277,16 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
                   </div>
 
                   <div className="grid grid-cols-3 gap-3 pt-5 border-t border-slate-100">
-                    <div className="text-center p-2 bg-slate-50 rounded-lg">
+                    <div className="text-center p-2 bg-slate-50 rounded-lg group-hover:bg-cyan-50 transition-colors">
                       <p className="text-xl font-bold text-slate-900">{stats.completedLessons}</p>
                       <p className="text-xs text-slate-500 font-medium">Lessons</p>
                     </div>
-                    <div className="text-center p-2 bg-ocean-50 rounded-lg">
-                      <p className="text-xl font-bold text-ocean-700">{stats.skillsLearned}</p>
+                    <div className="text-center p-2 bg-cyan-50 rounded-lg group-hover:bg-cyan-100 transition-colors">
+                      <p className="text-xl font-bold text-cyan-700">{stats.skillsLearned}</p>
                       <p className="text-xs text-slate-500 font-medium">Skills</p>
                     </div>
-                    <div className="text-center p-2 bg-algae-50 rounded-lg">
-                      <p className="text-lg font-bold text-algae-700">
+                    <div className="text-center p-2 bg-teal-50 rounded-lg group-hover:bg-teal-100 transition-colors">
+                      <p className="text-lg font-bold text-teal-700">
                         {formatCurrency(stats.totalSpent, tenant?.currency || 'AED')}
                       </p>
                       <p className="text-xs text-slate-500 font-medium">Spent</p>
@@ -280,7 +294,7 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
                   </div>
 
                   {/* Hover indicator */}
-                  <div className="flex items-center justify-center gap-2 mt-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center justify-center gap-2 mt-4 text-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity">
                     <span className="text-sm font-medium">View Details</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -290,20 +304,22 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
               )
             })}
 
-            {/* Add New Client Card */}
-            <button
-              onClick={() => setShowAddClient(true)}
-              className="group bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 p-6 flex flex-col items-center justify-center min-h-[280px] transition-all duration-200 hover:border-ocean-400 hover:bg-ocean-50"
-            >
-              <div className="w-16 h-16 rounded-xl bg-slate-200 flex items-center justify-center mb-4 group-hover:bg-ocean-100 transition-colors">
-                <svg className="w-8 h-8 text-slate-500 group-hover:text-ocean-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              <p className="text-lg font-semibold text-slate-700">Add New Client</p>
-              <p className="text-sm text-slate-500 mt-1">Register a swimmer</p>
-            </button>
-          </div>
+            {/* Add New Client Card with ScaleIn animation */}
+            <ScaleIn fromScale={0.9} delay={filteredClients.length * 0.08}>
+              <button
+                onClick={() => setShowAddClient(true)}
+                className="group bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl border-2 border-dashed border-cyan-300 p-6 flex flex-col items-center justify-center min-h-[280px] w-full transition-all duration-300 hover:border-cyan-400 hover:bg-gradient-to-br hover:from-cyan-100 hover:to-teal-100 hover:scale-[1.02] hover:shadow-lg hover:shadow-cyan-500/10"
+              >
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-200 to-teal-200 flex items-center justify-center mb-4 group-hover:from-cyan-300 group-hover:to-teal-300 transition-colors">
+                  <svg className="w-8 h-8 text-cyan-700 group-hover:text-cyan-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <p className="text-lg font-semibold text-cyan-800">Add New Client</p>
+                <p className="text-sm text-cyan-600 mt-1">Register a swimmer</p>
+              </button>
+            </ScaleIn>
+          </StaggerChildren>
         )}
       </div>
 
@@ -375,7 +391,7 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
               onChange={(e) => setNewClient({ ...newClient, notes: e.target.value })}
               placeholder="Any additional information..."
               rows={3}
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 transition-all resize-none"
+              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all resize-none"
             />
           </div>
 
@@ -383,7 +399,7 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
             <Button variant="secondary" className="flex-1" onClick={() => setShowAddClient(false)}>
               Cancel
             </Button>
-            <Button className="flex-1" onClick={handleAddClient} disabled={!newClient.fullName}>
+            <Button className="flex-1 bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700" onClick={handleAddClient} disabled={!newClient.fullName}>
               Add Client
             </Button>
           </div>
@@ -400,7 +416,7 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
         {selectedClientData && selectedClientStats && (
           <div className="space-y-6">
             {/* Hero Section */}
-            <div className="flex items-center gap-6 p-6 bg-slate-50 rounded-xl">
+            <div className="flex items-center gap-6 p-6 bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl">
               <div className="relative">
                 <img
                   src={getClientPhoto(selectedClientIndex)}
@@ -408,7 +424,7 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
                   className="w-24 h-24 rounded-xl object-cover ring-4 ring-white shadow-md"
                 />
                 {selectedClientData.status === 'active' && (
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-algae-500 rounded-full border-2 border-white flex items-center justify-center">
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-teal-500 rounded-full border-2 border-white flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -432,12 +448,12 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
                 <p className="text-3xl font-bold text-slate-900">{selectedClientStats.completedLessons}</p>
                 <p className="text-sm text-slate-500 font-medium">Total Lessons</p>
               </div>
-              <div className="text-center p-4 bg-ocean-50 rounded-xl">
-                <p className="text-3xl font-bold text-ocean-700">{selectedClientStats.skillsLearned}</p>
+              <div className="text-center p-4 bg-cyan-50 rounded-xl">
+                <p className="text-3xl font-bold text-cyan-700">{selectedClientStats.skillsLearned}</p>
                 <p className="text-sm text-slate-500 font-medium">Skills Mastered</p>
               </div>
-              <div className="text-center p-4 bg-algae-50 rounded-xl">
-                <p className="text-2xl font-bold text-algae-700">
+              <div className="text-center p-4 bg-teal-50 rounded-xl">
+                <p className="text-2xl font-bold text-teal-700">
                   {formatCurrency(selectedClientStats.totalSpent, tenant?.currency || 'AED')}
                 </p>
                 <p className="text-sm text-slate-500 font-medium">Total Spent</p>
@@ -504,7 +520,7 @@ export function Clients({ onViewAsStudent }: ClientsProps) {
                 </Button>
                 {onViewAsStudent && (
                   <Button
-                    className="flex-1"
+                    className="flex-1 bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700"
                     onClick={() => {
                       setSelectedClient(null)
                       onViewAsStudent(selectedClientData.id!)

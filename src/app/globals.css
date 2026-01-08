@@ -4,14 +4,16 @@
 
 @layer base {
   :root {
-    /* Calgee-inspired color variables */
-    --ocean-500: #1E5AA8;
-    --ocean-600: #1A4D92;
-    --ocean-700: #0D3A6B;
-    --algae-400: #4CB963;
-    --algae-500: #2D8B4A;
-    --coral-400: #FF7F50;
-    --coral-500: #E85D3B;
+    /* Modern Ocean Color Palette */
+    --teal-500: #14B8A6;
+    --teal-600: #0D9488;
+    --teal-700: #0F766E;
+    --turquoise-400: #22D3EE;
+    --turquoise-500: #06B6D4;
+    --ocean-500: #3B82F6;
+    --ocean-600: #2563EB;
+    --emerald-500: #10B981;
+    --coral-500: #F97316;
   }
 
   * {
@@ -21,7 +23,7 @@
   }
 
   html {
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
@@ -42,47 +44,58 @@
 
   /* Subtle tinted background for sections */
   .section-bg {
-    background: #F8FAFC;
+    background: linear-gradient(180deg, #F0FDFA 0%, #F8FAFC 100%);
   }
 
-  /* Clean white card */
+  /* Clean white card with teal hover */
   .card {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
     border-radius: 1rem;
+    transition: all 0.2s ease;
   }
 
-  /* Primary button - solid ocean blue */
+  .card:hover {
+    border-color: #99F6E4;
+    box-shadow: 0 10px 40px -10px rgba(20, 184, 166, 0.15);
+  }
+
+  /* Primary button - bold teal gradient */
   .btn-primary {
-    background: #1E5AA8;
+    background: linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%);
     color: #FFFFFF;
     font-weight: 600;
     border-radius: 0.75rem;
     padding: 0.75rem 1.5rem;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(20, 184, 166, 0.25);
   }
 
   .btn-primary:hover {
-    background: #1A4D92;
+    background: linear-gradient(135deg, #0D9488 0%, #0891B2 100%);
+    box-shadow: 0 6px 20px rgba(20, 184, 166, 0.35);
+    transform: translateY(-1px);
   }
 
   .btn-primary:active {
-    background: #0D3A6B;
+    background: linear-gradient(135deg, #0F766E 0%, #0E7490 100%);
+    transform: translateY(0);
   }
 
-  /* Secondary button - outlined */
+  /* Secondary button - teal outlined */
   .btn-secondary {
     background: transparent;
-    color: #1E5AA8;
+    color: #0D9488;
     font-weight: 600;
-    border: 1.5px solid #1E5AA8;
+    border: 2px solid #14B8A6;
     border-radius: 0.75rem;
     padding: 0.75rem 1.5rem;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
   }
 
   .btn-secondary:hover {
-    background: #EEF6FF;
+    background: #F0FDFA;
+    border-color: #0D9488;
   }
 
   /* Ghost button */
@@ -96,21 +109,62 @@
   }
 
   .btn-ghost:hover {
-    background: #F1F5F9;
-    color: #1E293B;
+    background: #F0FDFA;
+    color: #0F766E;
   }
 
-  /* Success state - algae green */
+  /* Success state - emerald green */
   .btn-success {
-    background: #4CB963;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
     color: #FFFFFF;
     font-weight: 600;
     border-radius: 0.75rem;
     padding: 0.75rem 1.5rem;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
   }
 
   .btn-success:hover {
-    background: #2D8B4A;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+
+  /* Glass morphism utilities */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-dark {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Water-themed decorative backgrounds */
+  .water-bg {
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(34, 211, 238, 0.05) 0%, transparent 70%),
+      linear-gradient(180deg, #F0FDFA 0%, #FFFFFF 100%);
+  }
+
+  /* Wavy border effect */
+  .wave-border {
+    position: relative;
+  }
+
+  .wave-border::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' fill='%2314B8A6' opacity='.15'/%3E%3Cpath d='M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z' fill='%2306B6D4' opacity='.1'/%3E%3C/svg%3E") repeat-x;
+    background-size: 1200px 8px;
   }
 }
 
@@ -128,6 +182,21 @@
     color: #64748B;
   }
 
+  /* Gradient text utilities */
+  .text-gradient-ocean {
+    background: linear-gradient(135deg, #14B8A6 0%, #06B6D4 50%, #3B82F6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-teal {
+    background: linear-gradient(135deg, #0D9488 0%, #14B8A6 50%, #22D3EE 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   /* Safe area for iOS */
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0);
@@ -135,6 +204,11 @@
 
   .safe-area-top {
     padding-top: env(safe-area-inset-top, 0);
+  }
+
+  /* GSAP-related utilities */
+  .gsap-hidden {
+    visibility: hidden;
   }
 }
 
@@ -169,16 +243,26 @@ p {
   background: #94A3B8;
 }
 
-/* Focus ring - accessible */
+/* Enhanced focus ring - teal glow */
 *:focus-visible {
-  outline: 2px solid #1E5AA8;
+  outline: 2px solid #14B8A6;
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2);
 }
 
-/* Selection */
+/* Remove glow for elements that shouldn't have it */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.25);
+}
+
+/* Selection - teal */
 ::selection {
-  background: #DCEEFF;
-  color: #0D3A6B;
+  background: #CCFBF1;
+  color: #0F766E;
 }
 
 /* Smooth transitions */
@@ -223,7 +307,11 @@ input[type="number"] {
   }
 }
 
-/* Animations - subtle and purposeful */
+/* ============================================
+   ANIMATIONS - Subtle and purposeful
+   ============================================ */
+
+/* Existing animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -246,4 +334,269 @@ input[type="number"] {
 
 .animate-slideUp {
   animation: slideUp 0.2s ease-out;
+}
+
+/* Wave animation for emojis */
+@keyframes wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-wave {
+  animation: wave 1s ease-in-out infinite;
+}
+
+/* Slow spin for decorative elements */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+/* Slide down animation for dropdowns */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* ============================================
+   NEW WATER-THEMED ANIMATIONS
+   ============================================ */
+
+/* Water ripple effect for buttons */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Gentle floating animation - slower and smoother */
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-6px) rotate(-1deg);
+  }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+/* Horizontal swimming motion */
+@keyframes swim {
+  0%, 100% {
+    transform: translateX(0) scaleX(1);
+  }
+  25% {
+    transform: translateX(8px) scaleX(1);
+  }
+  50% {
+    transform: translateX(0) scaleX(1);
+  }
+  75% {
+    transform: translateX(-8px) scaleX(-1);
+  }
+}
+
+.animate-swim {
+  animation: swim 3s ease-in-out infinite;
+}
+
+/* Rising bubble effect */
+@keyframes bubble {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-40px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.animate-bubble {
+  animation: bubble 2s ease-out infinite;
+}
+
+/* Glowing pulse for active states */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(20, 184, 166, 0.4),
+                0 0 10px rgba(20, 184, 166, 0.2),
+                0 0 15px rgba(20, 184, 166, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(20, 184, 166, 0.6),
+                0 0 20px rgba(20, 184, 166, 0.4),
+                0 0 30px rgba(20, 184, 166, 0.2);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   PAGE TRANSITIONS
+   ============================================ */
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.page-enter {
+  animation: pageEnter 0.4s ease-out forwards;
+}
+
+.page-exit {
+  animation: pageExit 0.3s ease-in forwards;
+}
+
+/* Staggered children animation helper */
+.stagger-children > * {
+  opacity: 0;
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* ============================================
+   ADDITIONAL WATER-THEMED UTILITIES
+   ============================================ */
+
+/* Shimmer effect for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(20, 184, 166, 0.1) 0%,
+    rgba(20, 184, 166, 0.3) 50%,
+    rgba(20, 184, 166, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Bounce in animation for modals/notifications */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-bounceIn {
+  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Water wave animation for backgrounds */
+@keyframes waterWave {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(-5px) translateY(3px);
+  }
+  50% {
+    transform: translateX(0) translateY(6px);
+  }
+  75% {
+    transform: translateX(5px) translateY(3px);
+  }
+}
+
+.animate-water-wave {
+  animation: waterWave 6s ease-in-out infinite;
+}
+
+/* Pulse scale animation */
+@keyframes pulseScale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-scale {
+  animation: pulseScale 2s ease-in-out infinite;
 }

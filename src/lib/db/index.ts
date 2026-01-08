@@ -283,6 +283,172 @@ export interface LessonNote {
   updatedAt: Date
 }
 
+// ===== NEW FEATURES =====
+
+// Achievement Badges System
+export interface Badge {
+  id?: number
+  tenantId: number
+  name: string
+  description: string
+  icon: string  // emoji or icon name
+  category: 'skill' | 'attendance' | 'milestone' | 'special'
+  requirement: {
+    type: 'skill_mastered' | 'lessons_completed' | 'streak_days' | 'personal_best' | 'custom'
+    value: number
+    skillId?: number
+    customCheck?: string
+  }
+  points: number
+  rarity: 'common' | 'rare' | 'epic' | 'legendary'
+  isActive: boolean
+  createdAt: Date
+}
+
+export interface StudentBadge {
+  id?: number
+  tenantId: number
+  studentId: number
+  badgeId: number
+  earnedAt: Date
+  notified: boolean
+  createdAt: Date
+}
+
+// Goal Setting System
+export interface Goal {
+  id?: number
+  tenantId: number
+  studentId: number
+  title: string
+  description?: string
+  goalType: 'skill' | 'time' | 'distance' | 'attendance' | 'custom'
+  targetValue: number
+  currentValue: number
+  unit: string  // e.g., 'seconds', 'meters', 'lessons', 'skills'
+  skillId?: number
+  deadline?: Date
+  status: 'active' | 'completed' | 'expired' | 'cancelled'
+  completedAt?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Notification System
+export interface Notification {
+  id?: number
+  tenantId: number
+  userId: number
+  title: string
+  message: string
+  notificationType: 'lesson_reminder' | 'badge_earned' | 'goal_completed' | 'feedback' | 'system' | 'streak'
+  priority: 'low' | 'normal' | 'high'
+  isRead: boolean
+  readAt?: Date
+  actionUrl?: string
+  scheduledFor?: Date
+  sentAt?: Date
+  deliveryMethod: 'in_app' | 'email' | 'sms' | 'push'
+  createdAt: Date
+}
+
+// Recurring Booking Patterns
+export interface RecurringPattern {
+  id?: number
+  tenantId: number
+  studentId: number
+  serviceTypeId: number
+  instructorId: number
+  dayOfWeek: number  // 0-6 (Sunday-Saturday)
+  startTime: string  // HH:mm format
+  frequency: 'weekly' | 'biweekly' | 'monthly'
+  startDate: Date
+  endDate?: Date
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Personal Best / Time Tracking
+export interface PersonalBest {
+  id?: number
+  tenantId: number
+  studentId: number
+  eventType: 'freestyle_25m' | 'freestyle_50m' | 'freestyle_100m' | 'backstroke_25m' | 'backstroke_50m' | 'breaststroke_25m' | 'breaststroke_50m' | 'butterfly_25m' | 'butterfly_50m' | 'medley_100m' | 'custom'
+  customEventName?: string
+  timeSeconds: number  // stored in seconds with decimals
+  previousBest?: number
+  improvement?: number  // seconds improved
+  recordedAt: Date
+  bookingId?: number
+  verifiedBy?: number
+  notes?: string
+  createdAt: Date
+}
+
+// Post-Lesson Feedback
+export interface LessonFeedback {
+  id?: number
+  tenantId: number
+  bookingId: number
+  studentId: number
+  rating: number  // 1-5 stars
+  enjoymentLevel: 'loved_it' | 'liked_it' | 'okay' | 'not_great'
+  difficultyLevel: 'too_easy' | 'just_right' | 'challenging' | 'too_hard'
+  favoriteActivity?: string
+  suggestions?: string
+  wouldRecommend: boolean
+  submittedAt: Date
+  createdAt: Date
+}
+
+// Attendance Streaks & Gamification
+export interface AttendanceStreak {
+  id?: number
+  tenantId: number
+  studentId: number
+  currentStreak: number
+  longestStreak: number
+  lastAttendanceDate?: Date
+  totalLessonsAttended: number
+  perfectWeeks: number  // weeks with no missed lessons
+  level: number  // gamification level
+  xpPoints: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Progress Media (Photos/Videos)
+export interface ProgressMedia {
+  id?: number
+  tenantId: number
+  studentId: number
+  mediaType: 'photo' | 'video'
+  url: string
+  thumbnailUrl?: string
+  title?: string
+  description?: string
+  skillId?: number
+  bookingId?: number
+  uploadedBy: number
+  isPublic: boolean  // visible to student/parent
+  createdAt: Date
+}
+
+// Parent-Child Link (for parent portal)
+export interface ParentLink {
+  id?: number
+  tenantId: number
+  parentUserId: number
+  studentId: number
+  relationship: 'mother' | 'father' | 'guardian' | 'other'
+  canViewProgress: boolean
+  canViewSchedule: boolean
+  canReceiveNotifications: boolean
+  canBookLessons: boolean
+  createdAt: Date
+}
+
 // Lazy-loaded database singleton
 let dbInstance: import('dexie').default | null = null
 let dbPromise: Promise<import('dexie').default> | null = null
@@ -297,6 +463,16 @@ async function initDb(): Promise<import('dexie').default> {
   if (!dbPromise) {
     dbPromise = (async () => {
       const Dexie = (await import('dexie')).default
+
+      // Clear corrupted database if needed
+      try {
+        const testDb = new Dexie('samswim-academy')
+        await testDb.open()
+        testDb.close()
+      } catch (openError) {
+        console.warn('Database corrupted, clearing:', openError)
+        await Dexie.delete('samswim-academy')
+      }
 
       class SamSwimDatabase extends Dexie {
         tenants!: import('dexie').Table<Tenant>
@@ -318,11 +494,22 @@ async function initDb(): Promise<import('dexie').default> {
         messages!: import('dexie').Table<Message>
         auditLogs!: import('dexie').Table<AuditLog>
         lessonNotes!: import('dexie').Table<LessonNote>
+        // New feature tables
+        badges!: import('dexie').Table<Badge>
+        studentBadges!: import('dexie').Table<StudentBadge>
+        goals!: import('dexie').Table<Goal>
+        notifications!: import('dexie').Table<Notification>
+        recurringPatterns!: import('dexie').Table<RecurringPattern>
+        personalBests!: import('dexie').Table<PersonalBest>
+        lessonFeedback!: import('dexie').Table<LessonFeedback>
+        attendanceStreaks!: import('dexie').Table<AttendanceStreak>
+        progressMedia!: import('dexie').Table<ProgressMedia>
+        parentLinks!: import('dexie').Table<ParentLink>
 
         constructor() {
           super('samswim-academy')
 
-          this.version(1).stores({
+          this.version(2).stores({
             tenants: '++id, slug',
             users: '++id, tenantId, email, role',
             userRelationships: '++id, tenantId, parentId, childId',
@@ -342,6 +529,17 @@ async function initDb(): Promise<import('dexie').default> {
             messages: '++id, tenantId, senderId, recipientId, isRead',
             auditLogs: '++id, tenantId, userId, entityType, entityId',
             lessonNotes: '++id, tenantId, bookingId, studentId, coachId',
+            // New feature tables
+            badges: '++id, tenantId, category, isActive',
+            studentBadges: '++id, tenantId, studentId, badgeId, earnedAt',
+            goals: '++id, tenantId, studentId, status, goalType',
+            notifications: '++id, tenantId, userId, isRead, notificationType',
+            recurringPatterns: '++id, tenantId, studentId, isActive',
+            personalBests: '++id, tenantId, studentId, eventType, recordedAt',
+            lessonFeedback: '++id, tenantId, bookingId, studentId',
+            attendanceStreaks: '++id, tenantId, studentId',
+            progressMedia: '++id, tenantId, studentId, mediaType',
+            parentLinks: '++id, tenantId, parentUserId, studentId',
           })
         }
       }
@@ -375,6 +573,17 @@ type DbType = {
   messages: import('dexie').Table<Message>
   auditLogs: import('dexie').Table<AuditLog>
   lessonNotes: import('dexie').Table<LessonNote>
+  // New feature tables
+  badges: import('dexie').Table<Badge>
+  studentBadges: import('dexie').Table<StudentBadge>
+  goals: import('dexie').Table<Goal>
+  notifications: import('dexie').Table<Notification>
+  recurringPatterns: import('dexie').Table<RecurringPattern>
+  personalBests: import('dexie').Table<PersonalBest>
+  lessonFeedback: import('dexie').Table<LessonFeedback>
+  attendanceStreaks: import('dexie').Table<AttendanceStreak>
+  progressMedia: import('dexie').Table<ProgressMedia>
+  parentLinks: import('dexie').Table<ParentLink>
 }
 
 // Export a function to get the database (async)
@@ -480,6 +689,69 @@ export async function seedDefaultSwimmingSkills(tenantId: number) {
         createdAt: new Date(),
       })
     }
+  }
+}
+
+// Seed default badges for gamification
+export async function seedDefaultBadges(tenantId: number) {
+  const database = await getDb()
+
+  const defaultBadges: Omit<Badge, 'id' | 'createdAt'>[] = [
+    // Skill badges
+    { tenantId, name: 'Water Baby', description: 'Complete all water safety skills', icon: '🏊', category: 'skill', requirement: { type: 'skill_mastered', value: 5 }, points: 100, rarity: 'common', isActive: true },
+    { tenantId, name: 'Stroke Master', description: 'Master all basic strokes', icon: '🏅', category: 'skill', requirement: { type: 'skill_mastered', value: 10 }, points: 250, rarity: 'rare', isActive: true },
+    { tenantId, name: 'Freestyle Champion', description: 'Master freestyle technique', icon: '🥇', category: 'skill', requirement: { type: 'skill_mastered', value: 1, skillId: 1 }, points: 150, rarity: 'rare', isActive: true },
+    { tenantId, name: 'Butterfly Legend', description: 'Master the butterfly stroke', icon: '🦋', category: 'skill', requirement: { type: 'skill_mastered', value: 1, skillId: 11 }, points: 300, rarity: 'epic', isActive: true },
+    { tenantId, name: 'Complete Swimmer', description: 'Master all swimming skills', icon: '👑', category: 'skill', requirement: { type: 'skill_mastered', value: 20 }, points: 500, rarity: 'legendary', isActive: true },
+
+    // Attendance badges
+    { tenantId, name: 'First Splash', description: 'Complete your first lesson', icon: '💦', category: 'attendance', requirement: { type: 'lessons_completed', value: 1 }, points: 25, rarity: 'common', isActive: true },
+    { tenantId, name: 'Getting Started', description: 'Complete 5 lessons', icon: '⭐', category: 'attendance', requirement: { type: 'lessons_completed', value: 5 }, points: 50, rarity: 'common', isActive: true },
+    { tenantId, name: 'Dedicated Swimmer', description: 'Complete 25 lessons', icon: '🌟', category: 'attendance', requirement: { type: 'lessons_completed', value: 25 }, points: 200, rarity: 'rare', isActive: true },
+    { tenantId, name: 'Swimming Star', description: 'Complete 50 lessons', icon: '💫', category: 'attendance', requirement: { type: 'lessons_completed', value: 50 }, points: 400, rarity: 'epic', isActive: true },
+    { tenantId, name: 'Swimming Legend', description: 'Complete 100 lessons', icon: '🏆', category: 'attendance', requirement: { type: 'lessons_completed', value: 100 }, points: 1000, rarity: 'legendary', isActive: true },
+
+    // Streak badges
+    { tenantId, name: 'Week Warrior', description: 'Attend lessons for 2 weeks straight', icon: '🔥', category: 'milestone', requirement: { type: 'streak_days', value: 14 }, points: 75, rarity: 'common', isActive: true },
+    { tenantId, name: 'Month Master', description: 'Maintain a 30-day streak', icon: '📅', category: 'milestone', requirement: { type: 'streak_days', value: 30 }, points: 200, rarity: 'rare', isActive: true },
+    { tenantId, name: 'Consistency King', description: 'Maintain a 90-day streak', icon: '👑', category: 'milestone', requirement: { type: 'streak_days', value: 90 }, points: 500, rarity: 'epic', isActive: true },
+
+    // Personal best badges
+    { tenantId, name: 'Speed Demon', description: 'Beat your personal best', icon: '⚡', category: 'special', requirement: { type: 'personal_best', value: 1 }, points: 50, rarity: 'common', isActive: true },
+    { tenantId, name: 'Record Breaker', description: 'Beat your PB 5 times', icon: '📈', category: 'special', requirement: { type: 'personal_best', value: 5 }, points: 150, rarity: 'rare', isActive: true },
+    { tenantId, name: 'Elite Performer', description: 'Beat your PB 10 times', icon: '🚀', category: 'special', requirement: { type: 'personal_best', value: 10 }, points: 300, rarity: 'epic', isActive: true },
+  ]
+
+  for (const badge of defaultBadges) {
+    await database.badges.add({
+      ...badge,
+      createdAt: new Date(),
+    })
+  }
+}
+
+// Initialize attendance streak for a student
+export async function initializeAttendanceStreak(tenantId: number, studentId: number) {
+  const database = await getDb()
+
+  const existing = await database.attendanceStreaks
+    .where('tenantId').equals(tenantId)
+    .and(s => s.studentId === studentId)
+    .first()
+
+  if (!existing) {
+    await database.attendanceStreaks.add({
+      tenantId,
+      studentId,
+      currentStreak: 0,
+      longestStreak: 0,
+      totalLessonsAttended: 0,
+      perfectWeeks: 0,
+      level: 1,
+      xpPoints: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
   }
 }
 

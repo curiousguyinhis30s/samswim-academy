@@ -1,14 +1,35 @@
 'use client'
 
-// Temporarily disabled 3D scene to debug production error
-// The Three.js scene was causing "Cannot read properties of undefined (reading 'S')"
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+
+// Dynamically import the 3D scene with SSR disabled
+const WaterSceneContent = dynamic(
+  () => import('./WaterSceneContent'),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="absolute inset-0 z-0"
+        style={{ background: 'linear-gradient(180deg, #134E4A 0%, #0D9488 50%, #14B8A6 100%)' }}
+      />
+    )
+  }
+)
 
 export function WaterScene() {
-  // Just show the gradient fallback for now
   return (
-    <div
-      className="absolute inset-0 z-0"
-      style={{ background: 'linear-gradient(180deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%)' }}
-    />
+    <div className="absolute inset-0 z-0">
+      <Suspense
+        fallback={
+          <div
+            className="w-full h-full"
+            style={{ background: 'linear-gradient(180deg, #134E4A 0%, #0D9488 50%, #14B8A6 100%)' }}
+          />
+        }
+      >
+        <WaterSceneContent />
+      </Suspense>
+    </div>
   )
 }

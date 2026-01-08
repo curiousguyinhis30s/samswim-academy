@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react'
 import { useAppStore } from '@/lib/store/app'
 import { Button, Modal, Input, Select, formatTime, formatCurrency } from '@/components/ui'
 import { LessonDetail } from '@/components/lesson/LessonDetail'
+import { FadeIn, SlideIn, StaggerChildren } from '@/lib/animations/gsap-hooks'
+import { PoolLane, Stopwatch } from '@/components/icons/SwimmingIcons'
 
 type ViewMode = 'agenda' | 'week'
 
@@ -130,143 +132,180 @@ export function Calendar() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Wave animation CSS */}
+      <style jsx global>{`
+        @keyframes wave-pulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+          }
+        }
+        .wave-badge {
+          animation: wave-pulse 2s ease-in-out infinite;
+        }
+        .booking-card-hover {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .booking-card-hover:hover {
+          transform: scale(1.02);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+      `}</style>
+
       <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Schedule</h1>
-            <p className="text-slate-500 text-sm">{currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+        {/* Header with SlideIn animation */}
+        <SlideIn direction="left" duration={0.6}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center">
+                <PoolLane size={24} className="text-cyan-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">Schedule</h1>
+                <p className="text-slate-500 text-sm">{currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowNewBooking(true)}
+              className="w-10 h-10 bg-cyan-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-cyan-700 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </button>
           </div>
-          <button
-            onClick={() => setShowNewBooking(true)}
-            className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-700 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          </button>
-        </div>
+        </SlideIn>
 
         {/* Week Selector - Horizontal scroll */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <button
-              onClick={() => navigateDay(-7)}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={goToToday}
-              className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-            >
-              Today
-            </button>
-            <button
-              onClick={() => navigateDay(7)}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+        <FadeIn delay={0.1}>
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <button
+                onClick={() => navigateDay(-7)}
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={goToToday}
+                className="px-3 py-1.5 text-sm font-medium text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+              >
+                Today
+              </button>
+              <button
+                onClick={() => navigateDay(7)}
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
 
-          {/* Day Pills */}
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {weekDays.map((date, i) => {
-              const isSelected = isSameDay(date, currentDate)
-              const isToday = isSameDay(date, today)
-              const dayBookings = bookings.filter(b => isSameDay(new Date(b.startTime), date))
-              const hasBookings = dayBookings.length > 0
+            {/* Day Pills with StaggerChildren */}
+            <StaggerChildren stagger={0.05} y={20} className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {weekDays.map((date, i) => {
+                const isSelected = isSameDay(date, currentDate)
+                const isToday = isSameDay(date, today)
+                const dayBookings = bookings.filter(b => isSameDay(new Date(b.startTime), date))
+                const hasBookings = dayBookings.length > 0
 
-              return (
-                <button
-                  key={i}
-                  onClick={() => setCurrentDate(date)}
-                  className={`flex-shrink-0 w-14 py-2 rounded-xl text-center transition-all ${
-                    isSelected
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : isToday
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'bg-white text-slate-700 border border-slate-200'
-                  }`}
-                >
-                  <p className={`text-xs font-medium ${isSelected ? 'text-blue-100' : 'text-slate-400'}`}>
-                    {date.toLocaleDateString('en-US', { weekday: 'short' })}
-                  </p>
-                  <p className="text-lg font-bold">{date.getDate()}</p>
-                  {hasBookings && !isSelected && (
-                    <div className="flex justify-center gap-0.5 mt-1">
-                      {dayBookings.slice(0, 3).map((_, idx) => (
-                        <div key={idx} className="w-1 h-1 rounded-full bg-blue-400" />
-                      ))}
-                    </div>
-                  )}
-                  {hasBookings && isSelected && (
-                    <p className="text-xs text-blue-100 mt-0.5">{dayBookings.length} lessons</p>
-                  )}
-                </button>
-              )
-            })}
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentDate(date)}
+                    className={`flex-shrink-0 w-14 py-2 rounded-xl text-center transition-all ${
+                      isSelected
+                        ? 'bg-cyan-600 text-white shadow-lg'
+                        : isToday
+                        ? 'bg-cyan-50 text-cyan-600'
+                        : 'bg-white text-slate-700 border border-slate-200'
+                    }`}
+                  >
+                    <p className={`text-xs font-medium ${isSelected ? 'text-cyan-100' : 'text-slate-400'}`}>
+                      {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                    </p>
+                    <p className="text-lg font-bold">{date.getDate()}</p>
+                    {hasBookings && !isSelected && (
+                      <div className="flex justify-center gap-0.5 mt-1">
+                        {dayBookings.slice(0, 3).map((_, idx) => (
+                          <div key={idx} className="w-1 h-1 rounded-full bg-cyan-400" />
+                        ))}
+                      </div>
+                    )}
+                    {hasBookings && isSelected && (
+                      <p className="text-xs text-cyan-100 mt-0.5">{dayBookings.length} lessons</p>
+                    )}
+                  </button>
+                )
+              })}
+            </StaggerChildren>
           </div>
-        </div>
+        </FadeIn>
 
         {/* View Toggle */}
-        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg mb-6">
-          <button
-            onClick={() => setViewMode('agenda')}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-              viewMode === 'agenda' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
-            }`}
-          >
-            Day View
-          </button>
-          <button
-            onClick={() => setViewMode('week')}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-              viewMode === 'week' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
-            }`}
-          >
-            Week Agenda
-          </button>
-        </div>
+        <FadeIn delay={0.2}>
+          <div className="flex gap-1 p-1 bg-slate-100 rounded-lg mb-6">
+            <button
+              onClick={() => setViewMode('agenda')}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                viewMode === 'agenda' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+              }`}
+            >
+              Day View
+            </button>
+            <button
+              onClick={() => setViewMode('week')}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                viewMode === 'week' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+              }`}
+            >
+              Week Agenda
+            </button>
+          </div>
+        </FadeIn>
 
         {/* Content */}
         {viewMode === 'agenda' ? (
           /* Day View */
           <div>
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">
-              {formatDateLabel(currentDate)}
-            </h2>
+            <FadeIn delay={0.3}>
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">
+                {formatDateLabel(currentDate)}
+              </h2>
+            </FadeIn>
 
             {dayBookings.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center border border-slate-200">
-                <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-2xl flex items-center justify-center">
-                  <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+              <FadeIn delay={0.4}>
+                <div className="bg-white rounded-2xl p-8 text-center border border-slate-200">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-cyan-50 rounded-2xl flex items-center justify-center">
+                    <PoolLane size={32} className="text-cyan-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-1">No lessons scheduled</h3>
+                  <p className="text-slate-500 text-sm mb-4">Your schedule is clear for this day</p>
+                  <button
+                    onClick={() => {
+                      setNewBooking({
+                        ...newBooking,
+                        date: currentDate.toISOString().split('T')[0],
+                      })
+                      setShowNewBooking(true)
+                    }}
+                    className="px-4 py-2 bg-cyan-600 text-white rounded-xl font-medium text-sm hover:bg-cyan-700 transition-colors"
+                  >
+                    Schedule a Lesson
+                  </button>
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-1">No lessons scheduled</h3>
-                <p className="text-slate-500 text-sm mb-4">Your schedule is clear for this day</p>
-                <button
-                  onClick={() => {
-                    setNewBooking({
-                      ...newBooking,
-                      date: currentDate.toISOString().split('T')[0],
-                    })
-                    setShowNewBooking(true)
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors"
-                >
-                  Schedule a Lesson
-                </button>
-              </div>
+              </FadeIn>
             ) : (
               <div className="space-y-3">
-                {dayBookings.map(booking => {
+                {dayBookings.map((booking, index) => {
                   const { client, service } = getBookingDetails(booking.id!)
                   const startTime = new Date(booking.startTime)
                   const endTime = new Date(booking.endTime)
@@ -275,57 +314,58 @@ export function Calendar() {
                   const isCompleted = booking.status === 'completed'
 
                   return (
-                    <button
-                      key={booking.id}
-                      onClick={() => setSelectedLessonId(booking.id!)}
-                      className={`w-full bg-white rounded-xl p-4 border text-left transition-all hover:shadow-md ${
-                        isCompleted ? 'border-slate-200 opacity-60' :
-                        isNow ? 'border-emerald-300 bg-emerald-50' :
-                        'border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        {/* Time */}
-                        <div className={`text-center min-w-[60px] ${isCompleted ? 'text-slate-400' : ''}`}>
-                          <p className={`text-lg font-bold ${isNow ? 'text-emerald-600' : 'text-slate-900'}`}>
-                            {formatTime(startTime)}
-                          </p>
-                          <p className="text-xs text-slate-500">{service?.durationMinutes || 45} min</p>
-                        </div>
-
-                        {/* Divider */}
-                        <div className={`w-1 h-12 rounded-full ${
-                          isCompleted ? 'bg-slate-300' : isNow ? 'bg-emerald-500' : 'bg-blue-500'
-                        }`} />
-
-                        {/* Details */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className={`font-semibold truncate ${isCompleted ? 'text-slate-400' : 'text-slate-900'}`}>
-                              {client?.fullName || 'Unknown Student'}
+                    <FadeIn key={booking.id} delay={0.3 + index * 0.1}>
+                      <button
+                        onClick={() => setSelectedLessonId(booking.id!)}
+                        className={`w-full bg-white rounded-xl p-4 border text-left booking-card-hover ${
+                          isCompleted ? 'border-slate-200 opacity-60' :
+                          isNow ? 'border-emerald-300 bg-emerald-50' :
+                          'border-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          {/* Time */}
+                          <div className={`text-center min-w-[60px] ${isCompleted ? 'text-slate-400' : ''}`}>
+                            <p className={`text-lg font-bold ${isNow ? 'text-emerald-600' : 'text-slate-900'}`}>
+                              {formatTime(startTime)}
                             </p>
-                            {isNow && (
-                              <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded-full">
-                                Now
-                              </span>
-                            )}
-                            {isCompleted && (
-                              <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                            )}
+                            <p className="text-xs text-slate-500">{service?.durationMinutes || 45} min</p>
                           </div>
-                          <p className={`text-sm ${isCompleted ? 'text-slate-400' : 'text-slate-500'}`}>
-                            {service?.name}
-                          </p>
-                        </div>
 
-                        {/* Arrow */}
-                        <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </button>
+                          {/* Divider */}
+                          <div className={`w-1 h-12 rounded-full ${
+                            isCompleted ? 'bg-slate-300' : isNow ? 'bg-emerald-500' : 'bg-cyan-500'
+                          }`} />
+
+                          {/* Details */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className={`font-semibold truncate ${isCompleted ? 'text-slate-400' : 'text-slate-900'}`}>
+                                {client?.fullName || 'Unknown Student'}
+                              </p>
+                              {isNow && (
+                                <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded-full wave-badge">
+                                  Now
+                                </span>
+                              )}
+                              {isCompleted && (
+                                <svg className="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                            <p className={`text-sm ${isCompleted ? 'text-slate-400' : 'text-slate-500'}`}>
+                              {service?.name}
+                            </p>
+                          </div>
+
+                          {/* Arrow */}
+                          <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </button>
+                    </FadeIn>
                   )
                 })}
               </div>
@@ -335,59 +375,62 @@ export function Calendar() {
           /* Week Agenda View */
           <div className="space-y-6">
             {upcomingBookings.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center border border-slate-200">
-                <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-2xl flex items-center justify-center">
-                  <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-1">No upcoming lessons</h3>
-                <p className="text-slate-500 text-sm mb-4">Schedule your first lesson to get started</p>
-                <button
-                  onClick={() => setShowNewBooking(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors"
-                >
-                  Schedule a Lesson
-                </button>
-              </div>
-            ) : (
-              upcomingBookings.map(({ date, bookings: dayBookings }) => (
-                <div key={date.toISOString()}>
-                  <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
-                    {formatDateLabel(date)}
-                  </h3>
-                  <div className="space-y-2">
-                    {dayBookings.map(booking => {
-                      const { client, service } = getBookingDetails(booking.id!)
-                      const startTime = new Date(booking.startTime)
-                      const isCompleted = booking.status === 'completed'
-
-                      return (
-                        <button
-                          key={booking.id}
-                          onClick={() => setSelectedLessonId(booking.id!)}
-                          className={`w-full bg-white rounded-xl p-3 border border-slate-200 text-left transition-all hover:shadow-md flex items-center gap-3 ${
-                            isCompleted ? 'opacity-60' : ''
-                          }`}
-                        >
-                          <div className="text-center min-w-[50px]">
-                            <p className="text-sm font-bold text-slate-900">{formatTime(startTime)}</p>
-                          </div>
-                          <div className="w-1 h-8 rounded-full bg-blue-500" />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-slate-900 truncate">{client?.fullName}</p>
-                            <p className="text-xs text-slate-500">{service?.name}</p>
-                          </div>
-                          {isCompleted && (
-                            <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </button>
-                      )
-                    })}
+              <FadeIn delay={0.3}>
+                <div className="bg-white rounded-2xl p-8 text-center border border-slate-200">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-cyan-50 rounded-2xl flex items-center justify-center">
+                    <PoolLane size={32} className="text-cyan-400" />
                   </div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-1">No upcoming lessons</h3>
+                  <p className="text-slate-500 text-sm mb-4">Schedule your first lesson to get started</p>
+                  <button
+                    onClick={() => setShowNewBooking(true)}
+                    className="px-4 py-2 bg-cyan-600 text-white rounded-xl font-medium text-sm hover:bg-cyan-700 transition-colors"
+                  >
+                    Schedule a Lesson
+                  </button>
                 </div>
+              </FadeIn>
+            ) : (
+              upcomingBookings.map(({ date, bookings: dayBookings }, dayIndex) => (
+                <FadeIn key={date.toISOString()} delay={0.3 + dayIndex * 0.1}>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                      {formatDateLabel(date)}
+                    </h3>
+                    <div className="space-y-2">
+                      {dayBookings.map((booking, bookingIndex) => {
+                        const { client, service } = getBookingDetails(booking.id!)
+                        const startTime = new Date(booking.startTime)
+                        const isCompleted = booking.status === 'completed'
+
+                        return (
+                          <FadeIn key={booking.id} delay={0.4 + dayIndex * 0.1 + bookingIndex * 0.05}>
+                            <button
+                              onClick={() => setSelectedLessonId(booking.id!)}
+                              className={`w-full bg-white rounded-xl p-3 border border-slate-200 text-left booking-card-hover flex items-center gap-3 ${
+                                isCompleted ? 'opacity-60' : ''
+                              }`}
+                            >
+                              <div className="text-center min-w-[50px]">
+                                <p className="text-sm font-bold text-slate-900">{formatTime(startTime)}</p>
+                              </div>
+                              <div className="w-1 h-8 rounded-full bg-cyan-500" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-slate-900 truncate">{client?.fullName}</p>
+                                <p className="text-xs text-slate-500">{service?.name}</p>
+                              </div>
+                              {isCompleted && (
+                                <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </button>
+                          </FadeIn>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </FadeIn>
               ))
             )}
           </div>
@@ -466,7 +509,7 @@ export function Calendar() {
               Cancel
             </Button>
             <Button
-              className="flex-1"
+              className="flex-1 bg-cyan-600 hover:bg-cyan-700"
               onClick={handleCreateBooking}
               disabled={!newBooking.clientId || !newBooking.serviceTypeId || !newBooking.date || !newBooking.startTime}
             >

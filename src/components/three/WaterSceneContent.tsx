@@ -140,9 +140,9 @@ function ThreeScene() {
     const WaterMaterial = shaderMaterial(
       {
         uTime: 0,
-        uColorDeep: new THREE.Color('#0369a1'),
-        uColorShallow: new THREE.Color('#38bdf8'),
-        uColorFoam: new THREE.Color('#ffffff'),
+        uColorDeep: new THREE.Color('#0D9488'),    // teal-600
+        uColorShallow: new THREE.Color('#2DD4BF'), // teal-400
+        uColorFoam: new THREE.Color('#CCFBF1'),    // teal-100
       },
       vertexShader,
       fragmentShader
@@ -230,8 +230,8 @@ function ThreeScene() {
     return (
       <>
         <ambientLight intensity={0.6} />
-        <pointLight ref={lightRef} position={[2, 3, 2]} intensity={1.5} color="#87CEEB" />
-        <pointLight position={[-3, 2, -2]} intensity={0.8} color="#0ea5e9" />
+        <pointLight ref={lightRef} position={[2, 3, 2]} intensity={1.5} color="#5EEAD4" />
+        <pointLight position={[-3, 2, -2]} intensity={0.8} color="#14B8A6" />
       </>
     )
   }
@@ -240,7 +240,7 @@ function ThreeScene() {
     <Canvas
       camera={{ position: [0, 2, 5], fov: 60 }}
       gl={{ antialias: true, alpha: true }}
-      style={{ background: 'linear-gradient(180deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #134E4A 0%, #0D9488 50%, #14B8A6 100%)' }}
       onCreated={(state: { gl: { setPixelRatio: (ratio: number) => void } }) => {
         state.gl.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       }}
@@ -248,7 +248,7 @@ function ThreeScene() {
       <CausticLight />
       <Water />
       <FloatingBubbles />
-      <fog attach="fog" args={['#0c4a6e', 3, 12]} />
+      <fog attach="fog" args={['#134E4A', 3, 12]} />
     </Canvas>
   )
 }
@@ -265,7 +265,7 @@ export default function WaterSceneContent() {
     return (
       <div
         className="w-full h-full"
-        style={{ background: 'linear-gradient(180deg, #0c4a6e 0%, #0369a1 50%, #0284c7 100%)' }}
+        style={{ background: 'linear-gradient(180deg, #134E4A 0%, #0D9488 50%, #14B8A6 100%)' }}
       />
     )
   }
